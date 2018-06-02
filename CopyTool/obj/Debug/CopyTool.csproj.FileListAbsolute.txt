@@ -1,0 +1,17 @@
+D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.csprojResolveAssemblyReference.cache
+D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.Form1.resources
+D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.Properties.Resources.resources
+D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.csproj.GenerateResource.Cache
+D:\waibao\CopyTool\CopyTool\bin\Debug\CopyTool.exe
+D:\waibao\CopyTool\CopyTool\bin\Debug\CopyTool.pdb
+D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.exe
+D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.pdb
+D:\waibao\CopyTool\CopyTool\bin\Debug\CopyTool.exe.config
+D:\waibao\CopyTool\CopyTool\bin\Debug\Comp.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OOXML.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OpenXmlFormats.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\ICSharpCode.SharpZipLib.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OpenXml4Net.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\Comp.pdb
+D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.xml

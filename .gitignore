@@ -50,3 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+/Comp/bin
+/Comp/obj
+/CopyTool/bin/Debug
+/Model/obj/Debug
+/packages
