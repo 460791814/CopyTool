@@ -15,3 +15,5 @@ D:\waibao\CopyTool\CopyTool\bin\Debug\ICSharpCode.SharpZipLib.dll
 D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OpenXml4Net.dll
 D:\waibao\CopyTool\CopyTool\bin\Debug\Comp.pdb
 D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.xml
+D:\waibao\CopyTool\CopyTool\bin\Debug\Model.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\Model.pdb

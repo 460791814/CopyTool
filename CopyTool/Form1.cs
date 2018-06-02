@@ -1,4 +1,6 @@
 ﻿using Comp;
+using CopyTool.Tool;
+using Sszg.CommonUtil;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,7 +24,7 @@ namespace CopyTool
         private void btn_caiji_Click(object sender, EventArgs e)
         {
             String url = "http://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?data=%7B%22itemNumId%22%3A%22566940414408%22%7D";
-            var html = Utils.SendWebRequest(url);
+          //  var html = Utils.SendWebRequest(url);
             List<string[]> _outputList = new List<string[]>();
             string[] item = new string[]
                         {
@@ -165,7 +167,13 @@ namespace CopyTool
             _outputList.Add(item);
             _outputList.Add(item2);
             _outputList.Add(headerRow);
-            WriteDicToFile(@"F:\jar\112.csv", _outputList);
+            int l = headerRow.Length;
+            string[] array = new string[64];
+            array[0] = "2132132135436关联线下服务ghfddg";
+            array[1] = "124710007";
+            _outputList.Add(new TB().TaobaoPrepareCSVData(null);
+
+            WriteDicToFile(@"F:\jar\113.csv", _outputList);
         }
         protected string ConvertCell(string cellContent)
         {
@@ -199,5 +207,6 @@ namespace CopyTool
             streamWriter.Flush();
             streamWriter.Close();
         }
+      
     }
 }

@@ -54,8 +54,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaoBaoProduct.cs" />
     <Compile Include="Tool\Data.cs" />
+    <Compile Include="Tool\DataConvert.cs" />
     <Compile Include="Tool\HttpTool.cs" />
     <Compile Include="Tool\StringTool.cs" />
+    <Compile Include="Tool\TB.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -85,6 +87,13 @@
       <Project>{1676ece1-2c2f-44a4-89f9-cb6753f6f874}</Project>
       <Name>Comp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Model\Model.csproj">
+      <Project>{b8e27f24-817d-4aba-b4ad-d31971c2fcc9}</Project>
+      <Name>Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
