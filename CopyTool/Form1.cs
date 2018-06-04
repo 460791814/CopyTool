@@ -1,6 +1,8 @@
 ﻿using Comp;
 using CopyTool.Tool;
+using Model;
 using Model.taobao;
+using Model.taobao.custom;
 using Newtonsoft.Json;
 using Sszg.CommonUtil;
 using System;
@@ -11,7 +13,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Xml;
 using Tool;
 
 namespace CopyTool
@@ -28,6 +32,7 @@ namespace CopyTool
             String url = "http://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?data=%7B%22itemNumId%22%3A%22566940414408%22%7D";
             var html = Utils.SendWebRequest(url);
             ItemJsonEntity60 model = JsonConvert.DeserializeObject<ItemJsonEntity60>(html);
+            ApiStackValue apiStackValue = JsonConvert.DeserializeObject<ApiStackValue>(model.data.apiStack[0].value);
             List<string[]> _outputList = new List<string[]>();
             string[] item = new string[]
                         {
@@ -170,13 +175,35 @@ namespace CopyTool
             _outputList.Add(item);
             _outputList.Add(item2);
             _outputList.Add(headerRow);
-            int l = headerRow.Length;
-            string[] array = new string[64];
-            array[0] = "2132132135436关联线下服务ghfddg";
-            array[1] = "124710007";
-           // _outputList.Add(new TB().TaobaoPrepareCSVData(null);
+ 
+            ProductItem prdModel = new ProductItem();
+            prdModel.Name = model.data.item.title;
+            prdModel.ProductSortKeys = model.data.item.categoryId;
+            prdModel.Province = null;
+            prdModel.Price =DataConvert.ToDecimal( apiStackValue.price.transmitPrice.priceText);
+            prdModel.Nums = DataConvert.ToInt(apiStackValue.skuCore.sku2info.info.quantity);
+            prdModel.validDate = "7";
+            prdModel.IsTicket = "0";
+            prdModel.IsRepair = "0";
+            prdModel.OnSell = "0";
+            prdModel.IsRmd = "1";
+            #region 获取详情
+            string descUrl = "http://hws.m.taobao.com/cache/wdesc/5.0?id=566940414408&f=TB1xT81XMjN8KJjSZFC8qv3Gpla&qq-pf-to=pcqq.c2c";
+          
+           string descHtml= Utils.SendWebRequest(descUrl);
+            Regex reg = new Regex("tfsContent(.*?)'(.*)',");
+            if (reg.IsMatch(descHtml)) {
+                Match m = reg.Match(descHtml);
 
-            WriteDicToFile(@"F:\jar\113.csv", _outputList);
+                prdModel.Content = m.Groups[2].Value;
+            }
+            prdModel.Code = "t" + model.data.item.itemId;
+            prdModel.OnlineKey= model.data.item.itemId;
+            #endregion
+
+            _outputList.Add(new TB().TaobaoPrepareCSVData(prdModel));
+
+            WriteDicToFile(@"C:\Users\songchao\Desktop\淘宝\113.csv", _outputList);
         }
         protected string ConvertCell(string cellContent)
         {

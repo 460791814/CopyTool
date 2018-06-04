@@ -50,8 +50,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="taobao\ApiStackEntity60.cs" />
     <Compile Include="taobao\ApiStackItem.cs" />
+    <Compile Include="taobao\custom\ApiStackValue.cs" />
     <Compile Include="taobao\AskAll.cs" />
-    <Compile Include="taobao\Class1.cs" />
+    <Compile Include="taobao\custom\SkuCore.cs" />
     <Compile Include="taobao\Data.cs" />
     <Compile Include="taobao\Delivery.cs" />
     <Compile Include="taobao\EvaluatesItem.cs" />

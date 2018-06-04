@@ -1,5 +1,5 @@
 using System;
-namespace Sszg.Tool.ComModule.Export.ViewEntity
+namespace Model
 {
 	public class ProductItem
 	{
