@@ -17,3 +17,5 @@ D:\waibao\CopyTool\CopyTool\bin\Debug\Comp.pdb
 D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.xml
 D:\waibao\CopyTool\CopyTool\bin\Debug\Model.dll
 D:\waibao\CopyTool\CopyTool\bin\Debug\Model.pdb
+D:\waibao\CopyTool\CopyTool\bin\Debug\Newtonsoft.Json.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\Newtonsoft.Json.xml

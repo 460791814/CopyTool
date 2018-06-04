@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,6 +48,35 @@
     <Compile Include="ProductItem.cs" />
     <Compile Include="Root.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="taobao\ApiStackEntity60.cs" />
+    <Compile Include="taobao\ApiStackItem.cs" />
+    <Compile Include="taobao\AskAll.cs" />
+    <Compile Include="taobao\Class1.cs" />
+    <Compile Include="taobao\Data.cs" />
+    <Compile Include="taobao\Delivery.cs" />
+    <Compile Include="taobao\EvaluatesItem.cs" />
+    <Compile Include="taobao\GroupPropsItem.cs" />
+    <Compile Include="taobao\Info.cs" />
+    <Compile Include="taobao\Item.cs" />
+    <Compile Include="taobao\ItemJsonEntity60.cs" />
+    <Compile Include="taobao\ModuleDescParams.cs" />
+    <Compile Include="taobao\Params.cs" />
+    <Compile Include="taobao\Price.cs" />
+    <Compile Include="taobao\Props.cs" />
+    <Compile Include="taobao\Props2.cs" />
+    <Compile Include="taobao\PropsItem.cs" />
+    <Compile Include="taobao\Rate.cs" />
+    <Compile Include="taobao\RateListItem.cs" />
+    <Compile Include="taobao\Seller.cs" />
+    <Compile Include="taobao\SkuBase.cs" />
+    <Compile Include="taobao\SkusItem.cs" />
+    <Compile Include="taobao\TmpProps.cs" />
+    <Compile Include="taobao\TrackParams.cs" />
+    <Compile Include="taobao\ValuesItem.cs" />
+    <Compile Include="taobao\Vertical.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

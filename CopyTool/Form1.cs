@@ -1,5 +1,7 @@
 ﻿using Comp;
 using CopyTool.Tool;
+using Model.taobao;
+using Newtonsoft.Json;
 using Sszg.CommonUtil;
 using System;
 using System.Collections.Generic;
@@ -24,7 +26,8 @@ namespace CopyTool
         private void btn_caiji_Click(object sender, EventArgs e)
         {
             String url = "http://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?data=%7B%22itemNumId%22%3A%22566940414408%22%7D";
-          //  var html = Utils.SendWebRequest(url);
+            var html = Utils.SendWebRequest(url);
+            ItemJsonEntity60 model = JsonConvert.DeserializeObject<ItemJsonEntity60>(html);
             List<string[]> _outputList = new List<string[]>();
             string[] item = new string[]
                         {
@@ -171,7 +174,7 @@ namespace CopyTool
             string[] array = new string[64];
             array[0] = "2132132135436关联线下服务ghfddg";
             array[1] = "124710007";
-            _outputList.Add(new TB().TaobaoPrepareCSVData(null);
+           // _outputList.Add(new TB().TaobaoPrepareCSVData(null);
 
             WriteDicToFile(@"F:\jar\113.csv", _outputList);
         }
