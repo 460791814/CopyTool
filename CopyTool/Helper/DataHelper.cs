@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace CopyTool
+namespace CopyTool.Helper
 {
-   public class TaoBaoProduct
+  public  class DataHelper
     {
-       
     }
 }

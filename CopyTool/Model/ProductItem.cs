@@ -1,5 +1,5 @@
 using System;
-namespace Model
+namespace CopyTool.Model
 {
 	public class ProductItem
 	{

@@ -1,5 +1,5 @@
 using System;
-namespace Sszg.CommonUtil
+namespace CopyTool.Util
 {
 	public class DataConvert
 	{

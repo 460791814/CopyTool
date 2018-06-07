@@ -1,16 +1,17 @@
-﻿using Model;
+﻿using CopyTool.Model;
 using Sszg.CommonUtil;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CopyTool.Tool
+namespace CopyTool.Util
 {
-   public class TB
+   public class TaoBaoUtils
     {
-        public   string[] TaobaoPrepareCSVData(ProductItem productItem)
+        public string[] TaobaoPrepareCSVData(ProductItem productItem)
         {
             string[] array = new string[64];
             if (Encoding.Default.GetByteCount(productItem.Name) > 60)
@@ -168,6 +169,39 @@ namespace CopyTool.Tool
         {
             Regex regex = new Regex("(?is)<EMBED[^<>]*video.taobao[^<>]*>\\s*?</EMBED>|(?is)<EMBED[^<>]*video.taobao[^<>]*>");
             return regex.Replace(content, string.Empty);
+        }
+
+        protected string ConvertCell(string cellContent)
+        {
+            if (!string.IsNullOrEmpty(cellContent))
+            {
+                cellContent = cellContent.Trim();
+                cellContent = cellContent.Replace("\"", "\"\"");
+                return "\"" + cellContent + "\"";
+            }
+            return string.Empty;
+        }
+        public void WriteDicToFile(string fileName, List<string[]> dicList)
+        {
+            int num = 1;
+            StreamWriter streamWriter = new StreamWriter(fileName, false, Encoding.Unicode);
+            int num2 = 0;
+            foreach (string[] current in dicList)
+            {
+                for (int i = 0; i < current.Length; i++)
+                {
+                    if (num2 != 0 && i != 0 && num != 1 && i != 2)
+                    {
+                        current[i] = this.ConvertCell(current[i]);
+                    }
+                }
+                string value = string.Empty;
+                value = string.Join("\t", current);
+                streamWriter.WriteLine(value);
+                num2++;
+            }
+            streamWriter.Flush();
+            streamWriter.Close();
         }
     }
 }
