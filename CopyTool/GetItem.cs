@@ -27,7 +27,7 @@ namespace CopyTool
         private static readonly string CONNSTR2 = "|-|";
         private ItemGetResponse GetItemGetMobileResponseByOnlinekeyNew(string onlineKey, int fromType, bool snatchPromotionPrice = false)
         {
-        
+
             ItemGetResponse val = null;
             try
             {
@@ -133,7 +133,7 @@ namespace CopyTool
                                     Sku val2 = list3.Find(match);
                                     if (val2 != null)
                                     {
-                                        tmpSku.Quantity=val2.Quantity;
+                                        tmpSku.Quantity = val2.Quantity;
                                     }
                                 }
                             }
@@ -149,8 +149,8 @@ namespace CopyTool
                     bool flag2 = true;// DataConvert.ToBoolean((object)ToolServer.get_ConfigData().GetUserConfig("AppConfig", _toolCode.ToUpper(), "SnacthFilter", "false"));
                     if (text != "onsale" && flag2)
                     {
-                        val.ErrCode="19";
-                        val.ErrMsg="未抓取到商品，该商品已删除或已下架";
+                        val.ErrCode = "19";
+                        val.ErrMsg = "未抓取到商品，该商品已删除或已下架";
                         return val;
                     }
                     if (text != "onsale")
@@ -164,7 +164,7 @@ namespace CopyTool
                                 while (enumerator6.MoveNext())
                                 {
                                     Sku current6 = enumerator6.Current;
-                                    current6.Quantity=100L;
+                                    current6.Quantity = 100L;
                                     num2 += current6.Quantity;
                                 }
                             }
@@ -202,13 +202,13 @@ namespace CopyTool
                     {
                         if (text != "onsale")
                         {
-                            val.ErrCode="19";
-                            val.ErrMsg="未抓取到商品，该商品已删除或已下架";
+                            val.ErrCode = "19";
+                            val.ErrMsg = "未抓取到商品，该商品已删除或已下架";
                         }
                         else
                         {
-                            val.ErrCode="18";
-                            val.ErrMsg="未抓取到商品，该商品有可能已删除或下架";
+                            val.ErrCode = "18";
+                            val.ErrMsg = "未抓取到商品，该商品有可能已删除或下架";
                         }
                         return val;
                     }
@@ -283,7 +283,7 @@ namespace CopyTool
                         }
                     }
                     Item val3 = new Item();
-                    val3.ApproveStatus=text;
+                    val3.ApproveStatus = text;
                     val3.Cid = DataConvert.ToLong((object)text3);
                     val3.Title = title;
                     val3.Desc = text5;
@@ -291,26 +291,26 @@ namespace CopyTool
                     val3.FreightPayer = freightPayer;
                     val3.ExpressFee = expressFee;
                     val3.EmsFee = emsFee;
-                    val3.PostFee=postFee;
-                    val3.DetailUrl=detailUrl;
-                    val3.WirelessDesc=wirelessDesc;
-                    val3.WapDetailUrl=text6;
-                    val3.HasDiscount=false;
-                    val3.HasInvoice=false;
-                    val3.HasShowcase=true;
-                    val3.HasWarranty=true;
-                    val3.IsTiming=false;
-                    val3.ItemImgs=itemImgs;
-                    val3.NumIid=DataConvert.ToLong((object)text4);
-                    val3.PostageId=0L;
-                    val3.PropImgs=propImgs;
+                    val3.PostFee = postFee;
+                    val3.DetailUrl = detailUrl;
+                    val3.WirelessDesc = wirelessDesc;
+                    val3.WapDetailUrl = text6;
+                    val3.HasDiscount = false;
+                    val3.HasInvoice = false;
+                    val3.HasShowcase = true;
+                    val3.HasWarranty = true;
+                    val3.IsTiming = false;
+                    val3.ItemImgs = itemImgs;
+                    val3.NumIid = DataConvert.ToLong((object)text4);
+                    val3.PostageId = 0L;
+                    val3.PropImgs = propImgs;
                     string empty3 = string.Empty;
                     string empty4 = string.Empty;
                     string empty5 = string.Empty;
                     string empty6 = string.Empty;
                     if (fromType == 0)
                     {
-                        GetPropertyStrForLocalSnatch(dicProNameAndProValue, sellProInfoList, text3, out empty3, out empty4, out empty5, out empty6);
+                        // GetPropertyStrForLocalSnatch(dicProNameAndProValue, sellProInfoList, text3, out empty3, out empty4, out empty5, out empty6);
                     }
                     else
                     {
@@ -322,31 +322,31 @@ namespace CopyTool
                         string empty7 = string.Empty;
                         string empty8 = string.Empty;
                         FoodSecurityDate(onlineKey, ref empty7, ref empty8);
-                        foodSecurity.ProductDateStart=empty7;
-                        foodSecurity.ProductDateEnd=empty8;
+                        foodSecurity.ProductDateStart = empty7;
+                        foodSecurity.ProductDateEnd = empty8;
                         FoodSecurity obj = foodSecurity;
                         DateTime dateTime = DateTime.Now;
                         dateTime = dateTime.Date;
-                        obj.StockDateStart=dateTime.ToString("yyyy-MM-dd");
+                        obj.StockDateStart = dateTime.ToString("yyyy-MM-dd");
                         FoodSecurity obj2 = foodSecurity;
                         dateTime = DateTime.Now;
                         dateTime = dateTime.Date;
-                        obj2.StockDateEnd=dateTime.ToString("yyyy-MM-dd");
+                        obj2.StockDateEnd = dateTime.ToString("yyyy-MM-dd");
                     }
-                    val3.Props=empty3;
-                    val3.PropsName=empty4;
-                    val3.InputPids=empty5;
-                    val3.InputStr=empty6;
-                    val3.FoodSecurity=foodSecurity;
-                    val3.SellPromise=true;
-                    val3.StuffStatus="new";
-                    val3.Type="fixed";
-                    val3.ValidThru=7L;
-                    val3.Violation=false;
-                    val3.Barcode=empty2;
-                    val3.Skus=list4;
-                    val3.Location=GetLoction(loctionStr);
-                    val3.Num=num;
+                    val3.Props = empty3;
+                    val3.PropsName = empty4;
+                    val3.InputPids = empty5;
+                    val3.InputStr = empty6;
+                    val3.FoodSecurity = foodSecurity;
+                    val3.SellPromise = true;
+                    val3.StuffStatus = "new";
+                    val3.Type = "fixed";
+                    val3.ValidThru = 7L;
+                    val3.Violation = false;
+                    val3.Barcode = empty2;
+                    val3.Skus = list4;
+                    val3.Location = GetLoction(loctionStr);
+                    val3.Num = num;
                     //if (DataConvert.ToBoolean((object)ToolServer.get_ConfigData().GetUserConfig("AppConfig", _toolCode.ToUpper(), "SnacthCPrice", "false")))
                     //{
                     //    val3.Price=GetGoodsCPrice(list4);
@@ -361,8 +361,8 @@ namespace CopyTool
                     //}
                     val3.Price = text2;
 
-                    val3.StuffStatus=stuffStatus;
-                    val.Item=val3;
+                    val3.StuffStatus = stuffStatus;
+                    val.Item = val3;
                     return val;
                 }
                 return null;
@@ -379,37 +379,37 @@ namespace CopyTool
             productStartDatetime = DateTime.Now.Date.AddDays(-1.0).ToString("yyyy-MM-dd");
             productEndDateTime = DateTime.Now.Date.AddDays(-1.0).ToString("yyyy-MM-dd");
             new ItemGetResponse();
-            string text = $"http://item.taobao.com/item.htm?id={new object[1]{onlineKey}}";
-			try
-			{
-				int num = 1;
-        string responseResultBody = GetResponseResultBody(text, Encoding.GetEncoding("gb2312"), "GET", true, text, ref num);
-				if (!string.IsNullOrEmpty(responseResultBody))
-				{
-					string pattern = "(?is)生产日期:(?<date>.*?)<";
-        Regex regex = new Regex(pattern);
-        Match match = regex.Match(responseResultBody);
-					if (match != null && match.Success)
-					{
-						string value = match.Value;
-        value = value.Replace("年", "-").Replace("月", "-").Replace("日", "-");
-        value = value.Replace("/", "-");
-						string pattern2 = "\\d{4}\\-\\d{1,2}\\-\\d{1,2}";
-        Regex regex2 = new Regex(pattern2);
-        MatchCollection matchCollection = regex2.Matches(value);
-						if (matchCollection != null && matchCollection.Count == 2)
-						{
-							productStartDatetime = matchCollection[0].Value;
-							productEndDateTime = matchCollection[1].Value;
-						}
-}
-				}
-			}
-			catch (Exception ex)
-			{
-			//	Log.WriteLog(ex);
-			}
-		}
+            string text = $"http://item.taobao.com/item.htm?id={new object[1] { onlineKey }}";
+            try
+            {
+                int num = 1;
+                string responseResultBody = GetResponseResultBody(text, Encoding.GetEncoding("gb2312"), "GET", true, text, ref num);
+                if (!string.IsNullOrEmpty(responseResultBody))
+                {
+                    string pattern = "(?is)生产日期:(?<date>.*?)<";
+                    Regex regex = new Regex(pattern);
+                    Match match = regex.Match(responseResultBody);
+                    if (match != null && match.Success)
+                    {
+                        string value = match.Value;
+                        value = value.Replace("年", "-").Replace("月", "-").Replace("日", "-");
+                        value = value.Replace("/", "-");
+                        string pattern2 = "\\d{4}\\-\\d{1,2}\\-\\d{1,2}";
+                        Regex regex2 = new Regex(pattern2);
+                        MatchCollection matchCollection = regex2.Matches(value);
+                        if (matchCollection != null && matchCollection.Count == 2)
+                        {
+                            productStartDatetime = matchCollection[0].Value;
+                            productEndDateTime = matchCollection[1].Value;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //	Log.WriteLog(ex);
+            }
+        }
         private FoodSecurity GetFoodSecurity(Dictionary<string, string> dicProNameAndProValue)
         {
             //IL_0014: Unknown result type (might be due to invalid IL or missing references)
@@ -422,52 +422,52 @@ namespace CopyTool
                 {
                     if (item.Key.Contains("生产许可证编号"))
                     {
-                        val.PrdLicenseNo=item.Value;
+                        val.PrdLicenseNo = item.Value;
                     }
                     if (item.Key.Contains("产品标准号"))
                     {
-                        val.DesignCode=item.Value;
+                        val.DesignCode = item.Value;
                     }
                     if (item.Key.Contains("厂名"))
                     {
-                        val.Factory=item.Value;
+                        val.Factory = item.Value;
                     }
                     if (item.Key.Contains("厂址"))
                     {
-                        val.FactorySite=item.Value;
+                        val.FactorySite = item.Value;
                     }
                     if (item.Key.Contains("厂家联系方式"))
                     {
-                        val.Contact=item.Value;
+                        val.Contact = item.Value;
                     }
                     if (item.Key.Contains("配料表"))
                     {
-                        val.Mix=item.Value;
+                        val.Mix = item.Value;
                     }
                     if (item.Key.Contains("储藏方法"))
                     {
-                        val.PlanStorage=item.Value;
+                        val.PlanStorage = item.Value;
                     }
                     if (item.Key.Contains("保质期"))
                     {
-                        val.Period=item.Value;
+                        val.Period = item.Value;
                     }
                     if (item.Key.Contains("食品添加剂"))
                     {
-                        val.FoodAdditive=item.Value;
+                        val.FoodAdditive = item.Value;
                     }
                     if (item.Key.Contains("健字号"))
                     {
-                        val.HealthProductNo=item.Value;
+                        val.HealthProductNo = item.Value;
                     }
                     if (item.Key.Contains("供应商") || item.Key.Contains("厂名"))
                     {
-                        val.Supplier=item.Value;
+                        val.Supplier = item.Value;
                     }
                 }
                 if (string.IsNullOrEmpty(val.FoodAdditive))
                 {
-                    val.FoodAdditive="无";
+                    val.FoodAdditive = "无";
                 }
             }
             return val;
@@ -513,7 +513,7 @@ namespace CopyTool
 
         internal static void GetPropertyStrForLocalSnatch(Dictionary<string, string> dicProNameAndProValue, IList<SellProInfo> sellProInfoList, string cid, out string propsStr, out string propsNameStr, out string inputStr, out string inputStrName)
         {
- 
+
             int num = 100001;
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
             propsStr = string.Empty;
@@ -772,8 +772,8 @@ namespace CopyTool
                 text2 = loctionStr;
             }
             Location val = new Location();
-            val.City=text2;
-            val.State=text;
+            val.City = text2;
+            val.State = text;
             return val;
         }
         private Dictionary<string, string> GetMobileItemProperty(List<Prop> proList, ref string barcode)
@@ -810,10 +810,10 @@ namespace CopyTool
                         if (!string.IsNullOrEmpty(item.ImgUrl))
                         {
                             val = new PropImg();
-                            val.Id=0L;
-                            val.Position=0L;
-                            val.Properties=skuModel.PropId + ":" + item.ValueId;
-                            val.Url=item.ImgUrl;
+                            val.Id = 0L;
+                            val.Position = 0L;
+                            val.Properties = skuModel.PropId + ":" + item.ValueId;
+                            val.Url = item.ImgUrl;
                             list.Add(val);
                         }
                         sellProInfo.Name = item.Name;
@@ -936,7 +936,7 @@ namespace CopyTool
             }
             catch (Exception ex)
             {
-               // Log.WriteLog("下载商品手机详情出现异常", ex);
+                // Log.WriteLog("下载商品手机详情出现异常", ex);
                 return result;
             }
         }
@@ -1040,12 +1040,12 @@ namespace CopyTool
                 for (int i = 0; i < picsPath.Count; i++)
                 {
                     val = new ItemImg();
-                    val.Position=(long)i;
+                    val.Position = (long)i;
                     if (picsPath[i].Contains("img01.taobaocdn"))
                     {
                         picsPath[i] = picsPath[i].Replace("img01.taobaocdn", "gd1.alicdn");
                     }
-                    val.Url=picsPath[i];
+                    val.Url = picsPath[i];
                     list.Add(val);
                 }
             }
@@ -1081,13 +1081,13 @@ namespace CopyTool
             }
             if (string.IsNullOrEmpty(empty))
             {
-               // Log.WriteLog("请求失败:" + url);
+                // Log.WriteLog("请求失败:" + url);
             }
             if (!string.IsNullOrEmpty(empty) && times < 3)
             {
                 if (empty.Contains("访问受限了"))
                 {
-                   // Log.WriteLog("访问受限了:" + empty);
+                    // Log.WriteLog("访问受限了:" + empty);
                     return string.Empty;
                 }
                 if (empty.Contains("ERRCODE_QUERY_DETAIL_FAIL"))
@@ -1331,8 +1331,8 @@ namespace CopyTool
                 foreach (SkusItem sku in itemJsonEntity60.data.skuBase.skus)
                 {
                     Sku val = new Sku();
-                    val.Properties=sku.propPath;
-                    val.SkuId=DataConvert.ToLong((object)sku.skuId);
+                    val.Properties = sku.propPath;
+                    val.SkuId = DataConvert.ToLong((object)sku.skuId);
                     string text4 = "";
                     string[] array = sku.propPath.Split(';');
                     string[] array2 = array;
@@ -1367,7 +1367,7 @@ namespace CopyTool
                             }
                         }
                     }
-                    val.PropertiesName=text4.Trim(';');
+                    val.PropertiesName = text4.Trim(';');
                     list.Add(val);
                 }
             }
@@ -1384,8 +1384,8 @@ namespace CopyTool
                             DataConvert.ToDecimal((object)list[j].Price);
                             if (num3 > 0m)
                             {
-                                list[j].Price=Math.Round(num3, 2).ToString();
-                                list[j].Quantity=DataConvert.ToLong((object)sku2Info.quantity);
+                                list[j].Price = Math.Round(num3, 2).ToString();
+                                list[j].Quantity = DataConvert.ToLong((object)sku2Info.quantity);
                                 if (string.IsNullOrEmpty(price) && list[j].Quantity > 0)
                                 {
                                     price = list[j].Price;
@@ -1404,8 +1404,8 @@ namespace CopyTool
                         decimal num5 = DataConvert.ToDecimal((object)list[j].Price);
                         if (num4 < num5 || num5 == 0m)
                         {
-                            list[j].Price=Math.Round(num4, 2).ToString();
-                            list[j].Quantity=DataConvert.ToLong((object)sku2Info_T3.quantity);
+                            list[j].Price = Math.Round(num4, 2).ToString();
+                            list[j].Quantity = DataConvert.ToLong((object)sku2Info_T3.quantity);
                             if (string.IsNullOrEmpty(price) && list[j].Quantity > 0)
                             {
                                 price = sku2Info_T3.price.priceText;
@@ -1431,7 +1431,7 @@ namespace CopyTool
                 {
                     if (DataConvert.ToDecimal((object)item2.Price) <= 0m && DataConvert.ToLong((object)item2.Quantity) == 0)
                     {
-                        item2.Price=price;
+                        item2.Price = price;
                     }
                 }
             }

@@ -5,6 +5,7 @@ using Model.taobao;
 using Model.taobao.custom;
 using Newtonsoft.Json;
 using Sszg.CommonUtil;
+using Sszg.ToolBox.DbEntity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +30,25 @@ namespace CopyTool
 
         private void btn_caiji_Click(object sender, EventArgs e)
         {
+           string SqlServerCe_Conn ="Temp File Max Size = 2048;Data source=" + @"D:\Program Files (x86)\Huatone\甩手工具箱5.03beta版\Tool\SNATCH_4PLUS\DB\nsdata.sdf" + ";Password = " + Encoding.UTF8.GetString(Convert.FromBase64String("bXlfTkBlVFMjaE9wMA==")) + ";Max Database Size = 2048; Max Buffer Size = 2048";
+
+        Sszg.DataUtil.Session session = new Sszg.DataUtil.Session(DbTypeEnum.SqlServerCe, SqlServerCe_Conn);
+            //string whereSql = "sysId={0} and keys={1} and del=0";
+            //object[] parms = new object[2]
+            //{
+            //    1,
+            //    sortKeys
+            //};
+            //var xx= ss.GetFristEntityByWhere<Sys_sysSort>(whereSql, parms, true);
+            // DataTable dataTable = ss.GetDataTable("select * from sp_item", null);
+            string text = "select p.*,s.sysSortId,c.content from sp_item p left join sp_sysSort s on s.itemId=p.id left join sp_itemContent c on p.id=c.itemId where p.SszgUserName={0} and p.del=0 order by p.showurl asc";
+            DataTable dataTable = session.GetDataTable(text, new object[1]
+            {
+                "qq460791814"
+            });
+            return;
+
+
             String url = "http://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?data=%7B%22itemNumId%22%3A%22566940414408%22%7D";
             var html = Utils.SendWebRequest(url);
             ItemJsonEntity60 model = JsonConvert.DeserializeObject<ItemJsonEntity60>(html);
