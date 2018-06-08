@@ -363,6 +363,9 @@ namespace CopyTool.Model
 			get;
 			set;
 		}
+        /// <summary>
+        /// тк╥ядё╟Е
+        /// </summary>
 		public string ActualShipTpl
 		{
 			get;

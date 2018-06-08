@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Top.Api.Domain;
+using Util;
 
 namespace CopyTool.Util
 {
@@ -145,7 +147,98 @@ namespace CopyTool.Util
             array[62] = "0";
             return array;
         }
-        private string ConvertToSaveCellCommon(string cell)
+
+        internal string GetOperateTypes(string detailUrl)
+        {
+            string result = string.Empty;
+            if (!string.IsNullOrEmpty(detailUrl))
+            {
+                string content = Utils.SendWebRequest(detailUrl);
+                string operateTypes = GetNumber3c(content);
+                string stringToEscape = "{\"bathrobe_field_tag_image_1\" : \"\", \"bathrobe_field_tag_image_2\" : \"\",\"var_item_board_inspection_report\" : \"\",\"var_item_glove_inspection_report_1\" : \"\",\"var_item_light_inspection_report_2\" : \"\",\"var_org_auth_tri_c_code\" : \"" + operateTypes + "\",\"var_tri_c_cer_image\" : \"\", \"var_tri_c_cer_image_2\" : \"\" }";
+                result = Uri.EscapeDataString(stringToEscape);
+            }
+            return result;
+        }
+
+        internal string GetFoodParame(Item item)
+        {
+           // StringBuilder sb = new StringBuilder();
+            string text = string.Empty;
+            if (item != null && item.FoodSecurity != null)
+            {
+                FoodSecurity foodSecurityByItemId = item.FoodSecurity;
+               
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.Contact))
+                {
+                    text = text + "contact:" + foodSecurityByItemId.Contact + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.DesignCode))
+                {
+                    text = text + "design_code:" + foodSecurityByItemId.DesignCode + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.Factory))
+                {
+                    text = text + "factory:" + foodSecurityByItemId.Factory + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.FactorySite))
+                {
+                    text = text + "factory_site:" + foodSecurityByItemId.FactorySite + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.FoodAdditive))
+                {
+                    text = text + "food_additive:" + foodSecurityByItemId.FoodAdditive + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.Mix))
+                {
+                    text = text + "mix:" + foodSecurityByItemId.Mix + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.Period))
+                {
+                    text = text + "period:" + foodSecurityByItemId.Period + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.PlanStorage))
+                {
+                    text = text + "plan_storage:" + foodSecurityByItemId.PlanStorage + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.PrdLicenseNo))
+                {
+                    text = text + "prd_license_no:" + foodSecurityByItemId.PrdLicenseNo + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.HealthProductNo))
+                {
+                    text = text + "health_product_no:" + foodSecurityByItemId.HealthProductNo + ";";
+                }
+                if (!string.IsNullOrEmpty(DataConvert.ToString((object)foodSecurityByItemId.ProductDateEnd)))
+                {
+                    text = text + "product_date_end:" + foodSecurityByItemId.ProductDateEnd + ";";
+                }
+                if (!string.IsNullOrEmpty(DataConvert.ToString((object)foodSecurityByItemId.ProductDateStart)))
+                {
+                    text = text + "product_date_start:" + foodSecurityByItemId.ProductDateStart + ";";
+                }
+                if (!string.IsNullOrEmpty(DataConvert.ToString((object)foodSecurityByItemId.StockDateEnd)))
+                {
+                    text = text + "stock_date_end:" + foodSecurityByItemId.StockDateEnd + ";";
+                }
+                if (!string.IsNullOrEmpty(DataConvert.ToString((object)foodSecurityByItemId.StockDateStart)))
+                {
+                    text = text + "stock_date_start:" + foodSecurityByItemId.StockDateStart + ";";
+                }
+                if (!string.IsNullOrEmpty(foodSecurityByItemId.Supplier))
+                {
+                    text = text + "supplier:" + foodSecurityByItemId.Supplier + ";";
+                }
+                if (!string.IsNullOrEmpty(text))
+                {
+                    text = text.TrimEnd(';');
+                }
+      
+            }
+            return text;
+        }
+
+        public string ConvertToSaveCellCommon(string cell)
         {
             if (string.IsNullOrEmpty(cell))
             {
@@ -202,6 +295,76 @@ namespace CopyTool.Util
             }
             streamWriter.Flush();
             streamWriter.Close();
+        }
+
+        public string GetItzemStuffStatus(string stuffStatus)
+        {
+            switch (stuffStatus)
+            {
+                case "new":
+                    return "5";
+                case "unused":
+                    return "8";
+                case "second":
+                    return "6";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        public string GetCode(string propsName,string outerId) {
+           
+           string text = propsName;
+          
+            if (!string.IsNullOrEmpty(text) && text.IndexOf("货号") >= 0)
+            {
+                int num = text.IndexOf("货号");
+                if (num + 3 < text.Length)
+                {
+                    text = text.Substring(num + 3);
+                }
+                num = text.IndexOf(';');
+                if (num > 0)
+                {
+                    text = text.Substring(0, text.IndexOf(';'));
+                }
+                if (text.Length > 20)
+                {
+                    text = text.Substring(0, 20);
+                }
+                 
+            }
+            else
+            {
+                text = outerId;
+            }
+            return text;
+        }
+        public string GetNumber3c(string downloadResponseContent)
+        {
+            string text = string.Empty;
+            if (string.IsNullOrEmpty(downloadResponseContent))
+            {
+                return text;
+            }
+            string pattern = "<li\\s*title=\"?(?<number3c>[^>]*?)\"?\\s*>.*?证书编号.*?[^<]*?</li>";
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(downloadResponseContent);
+            if (match != null && match.Success && !string.IsNullOrEmpty(match.Groups["number3c"].Value))
+            {
+                text = match.Groups["number3c"].Value;
+            }
+            if (string.IsNullOrEmpty(text))
+            {
+                string pattern2 = "baike.taobao.com/view.htm?[^\"]*?wd=(?<number3c>\\d*)[^\"]*?\"";
+                regex = new Regex(pattern2);
+                match = regex.Match(downloadResponseContent);
+                if (match != null && match.Success && !string.IsNullOrEmpty(match.Groups["number3c"].Value))
+                {
+                    text = match.Groups["number3c"].Value;
+                }
+            }
+            return text;
         }
     }
 }

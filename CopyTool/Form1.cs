@@ -60,6 +60,7 @@ namespace CopyTool
         private void CaiJiTaoBao()
         {
             TaoBaoService taobaoService = new TaoBaoService();
+            TaoBaoUtils taoBaoUtils = new TaoBaoUtils();
             ItemGetResponse itemResponse = taobaoService.GetItemGetMobileResponseByOnlinekeyNew("566940414408", 1);
             var item = itemResponse.Item;
             List<string[]> _outputList = new List<string[]>();
@@ -69,48 +70,73 @@ namespace CopyTool
             ProductItem productItem = new ProductItem();
             productItem.Name = item.Title;
             productItem.ProductSortKeys = DataConvert.ToString(item.Cid);
-            //productItem.ActualNewOrOld
+            productItem.ActualNewOrOld = taoBaoUtils.GetItzemStuffStatus(item.StuffStatus);
             productItem.Province = item.Location.State;
             productItem.City = item.Location.City;
-            //productItem.SellType
-            //prdModel.Price = DataConvert.ToDecimal(apiStackValue.price.transmitPrice.priceText);
-            //productItem.PriceRise
-            //prdModel.Nums = DataConvert.ToInt(apiStackValue.skuCore.sku2info.info.quantity);
-            //productItem.validDate
-            //productItem.ShipWay
-            //productItem.ActualShipSlow;
-            //productItem.ActualShipEMS;
-            //productItem.ActualShipFast;
-            //productItem.IsTicket
-            //productItem.IsRepair
-            //productItem.OnSell
-            //productItem.IsRmd
-            //productItem.ActualOnSellDate
+            if (item.Type != "fixed")
+            {
+                if (item.Type == "auction")
+                {
+                    productItem.SellType = "a";
+                    productItem.SellTypeName = "拍卖";
+                }
+            }
+            else
+            {
+                productItem.SellType = "b";
+                productItem.SellTypeName = "一口价";
+            }
+
+            productItem.Price = DataConvert.ToDecimal(item.Price);
+            productItem.PriceRise = DataConvert.ToDecimal(item.Increment);
+            productItem.Nums = DataConvert.ToInt(item.Num);
+            productItem.validDate= DataConvert.ToString(item.ValidThru);
+            productItem.ShipWay = (item.FreightPayer == "seller" ? "1" : "2");
+            productItem.ActualShipSlow= item.PostFee;
+            productItem.ActualShipEMS= item.EmsFee;
+            productItem.ActualShipFast= item.ExpressFee;
+            productItem.IsTicket= (item.HasInvoice ? "1" : "0");
+            productItem.IsRepair= (item.HasWarranty ? "1" : "0");
+            productItem.OnSell = item.ApproveStatus=="onsale"?"1":"2";
+            productItem.IsRmd = DataConvert.ToString(item.HasShowcase);
+            productItem.ActualOnSellDate=DataConvert.ToDateTime(item.ListTime).ToString("yyyy-MM-dd HH:mm:ss").Replace("/", "-");
             //productItem.Content
             //productItem.PropertyValue
             //productItem.ActualShipTpl
-            //productItem.Discount  //23
+            productItem.Discount= DataConvert.ToString(item.HasDiscount);
             //productItem.Photo
             //productItem.SellProperty
             //productItem.UserInputPropIDs
             //productItem.UserInputPropValues
-            //productItem.Code
+            productItem.Code = taoBaoUtils.GetCode(item.PropsName, item.OuterId);
             //productItem.CustomProperty
-            // productItem.OnlineKey
+            productItem.OnlineKey = DataConvert.ToString(item.NumIid);
             productItem.SszgUserName = "";
-            //productItem.FoodParame
-            //productItem.SubStock
-            //productItem.ItemSize
-            // productItem.ItemWeight
+            productItem.FoodParame =taoBaoUtils.GetFoodParame(item);
+            productItem.SubStock = DataConvert.ToString(item.SubStock);
+            if (!string.IsNullOrEmpty(item.ItemSize))
+            {
+                if (item.ItemSize.StartsWith("bulk:"))
+                {
+                    productItem.ItemSize = item.ItemSize;
+                }
+                else
+                {
+                    productItem.ItemSize = "bulk:" + item.ItemSize;
+                }
+            }
+          
+            productItem.ItemWeight=item.ItemWeight;
             //productItem.Wirelessdesc
-            //productItem.Barcode
+            productItem.Barcode= item.Barcode;
             //productItem.SellPoint
             //productItem.SkuBarcode
             //productItem.CpvMemo
             //productItem.InputCustomCpv
             //productItem.Features
-            //productItem.OperateTypes
-            TaoBaoUtils taoBaoUtils = new TaoBaoUtils();
+       
+            productItem.OperateTypes = taoBaoUtils.GetOperateTypes(item.DetailUrl);
+
             _outputList.Add(taoBaoUtils.TaobaoPrepareCSVData(productItem));
             taoBaoUtils.WriteDicToFile(@"C:\Users\songchao\Desktop\淘宝\113.csv", _outputList);
         }
