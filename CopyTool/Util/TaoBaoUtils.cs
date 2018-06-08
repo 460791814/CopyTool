@@ -1,5 +1,7 @@
 ﻿using CopyTool.Model;
 using Sszg.CommonUtil;
+using Sszg.Tool.ComModule.DbEntity;
+using Sszg.ToolBox.DbEntity;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -366,5 +368,147 @@ namespace CopyTool.Util
             }
             return text;
         }
+
+        public string GetItemSellPoint(string responseContent)
+        {
+            //IL_0006: Unknown result type (might be due to invalid IL or missing references)
+            string result = string.Empty;
+            string sysConfig = "(?is)<p\\s*?class=\"tb - subtitle\">\\s*?(?<ItemSellPoint>.*?)</p>|<div[^>]*?class=\"tb - detail - hd\"[^>]*?>[^<>]*?<h1[^>]*?>[^>]*?</h1>[^<>]*?<p>(?<ItemSellPoint>.*?)</p>[^<>]*?</div>";
+            if (!string.IsNullOrEmpty(sysConfig))
+            {
+                Regex regex = new Regex(sysConfig);
+                Match match = regex.Match(responseContent);
+                if (match != null && match.Groups["ItemSellPoint"].Success)
+                {
+                    result = match.Groups["ItemSellPoint"].Value;
+                }
+            }
+            return result;
+        }
+        private string HandleSellProperty(int id, out string skuBarcode, ProductItem productItem)
+        {
+            //IL_0009: Unknown result type (might be due to invalid IL or missing references)
+            //IL_000e: Expected O, but got Unknown
+            //IL_001c: Unknown result type (might be due to invalid IL or missing references)
+            //IL_0028: Unknown result type (might be due to invalid IL or missing references)
+            //IL_002d: Expected O, but got Unknown
+            //IL_0031: Unknown result type (might be due to invalid IL or missing references)
+            //IL_003c: Unknown result type (might be due to invalid IL or missing references)
+            //IL_0041: Expected O, but got Unknown
+            //IL_028e: Unknown result type (might be due to invalid IL or missing references)
+            //IL_029c: Unknown result type (might be due to invalid IL or missing references)
+            //IL_02a1: Expected O, but got Unknown
+            //IL_02c1: Unknown result type (might be due to invalid IL or missing references)
+            //IL_0418: Unknown result type (might be due to invalid IL or missing references)
+            //IL_0426: Unknown result type (might be due to invalid IL or missing references)
+            //IL_042b: Expected O, but got Unknown
+            skuBarcode = string.Empty;
+            int sysId = 1;
+            Sys_sysSort val = new Sys_sysSort();
+            if (!string.IsNullOrEmpty(productItem.SortKey))
+            {
+                val = ToolServer.get_ProductData().GetSortBySysIdAndKeys(1, productItem.SortKey);
+            }
+            if (val == null)
+            {
+                val = ToolServer.get_ProductData().GetSortById(productItem.SysSortId);
+            }
+            if (val == null)
+            {
+                Log.WriteLog("导出商品时，获取类目信息失败，" + Environment.StackTrace);
+                return string.Empty;
+            }
+            IList<Sp_sellProperty> sellProperty = _exportPackageDao.GetSellProperty(id, sysId);
+            if (sellProperty != null && sellProperty.Count != 0)
+            {
+                List<string> list = new List<string>();
+                for (int num = sellProperty.Count - 1; num >= 0; num--)
+                {
+                    if (list.Contains(sellProperty[num].Sellproinfos))
+                    {
+                        sellProperty.Remove(sellProperty[num]);
+                    }
+                    else
+                    {
+                        list.Add(sellProperty[num].Sellproinfos);
+                    }
+                }
+                string text = "";
+                skuBarcode = string.Empty;
+                sellProperty = OrderProperty(sellProperty, id);
+                Dictionary<string, string> dictionary = new Dictionary<string, string>();
+                {
+                    foreach (Sp_sellProperty item in sellProperty)
+                    {
+                        string text2 = (item.Sellproinfos == null) ? "" : item.Sellproinfos;
+                        string text3 = (item.Price == 0m) ? "" : DataConvert.ToString((object)item.Price);
+                        string text4 = (item.Nums == 0) ? "" : DataConvert.ToString((object)item.Nums);
+                        string text5 = (item.Code == null) ? "" : DataConvert.ToString((object)item.Code).Replace(" ", "").Replace("\u3000", "")
+                            .Replace("/", "")
+                            .Replace("\\", "")
+                            .Replace("&", "");
+                        string text6 = text;
+                        text = text6 + text3 + ":" + text4 + ":" + text5 + ":";
+                        if (!string.IsNullOrEmpty(text2))
+                        {
+                            string[] array = text2.Split('|');
+                            for (int i = 0; i < array.Length; i++)
+                            {
+                                string[] array2 = array[i].Split(':');
+                                if (array2 != null && array2.Length > 1)
+                                {
+                                    if (val != null && val.get_IsNewSellPro())
+                                    {
+                                        Sys_sysPropertyValue val2 = ToolServer.get_ProductData().GetPropertyValueById(Convert.ToInt32(array2[1]));
+                                        if (val2 != null)
+                                        {
+                                            text = text + val2.get_Value() + ";";
+                                        }
+                                        else
+                                        {
+                                            IList<Sys_sysPropertyValue> propertyValuesByPropertyId = ToolServer.get_ProductData().GetPropertyValuesByPropertyId(Convert.ToInt32(array2[0]));
+                                            if (propertyValuesByPropertyId != null && propertyValuesByPropertyId.Count > 0)
+                                            {
+                                                string[] array3 = propertyValuesByPropertyId[0].get_Value().Split(':');
+                                                string text7 = text;
+                                                text = text7 + array3[0] + ":" + array2[1] + ";";
+                                            }
+                                            else if (array2.Length >= 2)
+                                            {
+                                                if (dictionary != null && !dictionary.ContainsKey(array2[0]))
+                                                {
+                                                    IList<Sys_sysProperty> propertyAllTopLevelProperty = _exportPackageDao.GetPropertyAllTopLevelProperty(array2[0]);
+                                                    if (propertyAllTopLevelProperty != null && propertyAllTopLevelProperty.Count == 1)
+                                                    {
+                                                        dictionary[array2[0]] = propertyAllTopLevelProperty[0].get_Keys();
+                                                    }
+                                                }
+                                                string empty = string.Empty;
+                                                empty = ((dictionary == null || dictionary.Count <= 0 || !dictionary.ContainsKey(array2[0]) || string.IsNullOrEmpty(dictionary[array2[0]])) ? (array2[0] + ":" + array2[1] + ";") : (dictionary[array2[0]] + ":" + array2[1] + ";"));
+                                                text += empty;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Sys_sysPropertyValue val3 = ToolServer.get_ProductData().GetPropertyValueById(DataConvert.ToInt((object)array2[1]));
+                                        string text8 = (val3 != null) ? val3.get_Value() : string.Empty;
+                                        if (string.IsNullOrEmpty(text8) && array2.Length >= 2)
+                                        {
+                                            text8 = array2[0] + ":" + array2[1];
+                                        }
+                                        text = text + text8 + ";";
+                                    }
+                                }
+                            }
+                        }
+                        skuBarcode = skuBarcode + item.Barcode + ";";
+                    }
+                    return text;
+                }
+            }
+            return string.Empty;
+        }
+
     }
 }

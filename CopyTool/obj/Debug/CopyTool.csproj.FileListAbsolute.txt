@@ -7,18 +7,6 @@ D:\waibao\CopyTool\CopyTool\bin\Debug\CopyTool.pdb
 D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.exe
 D:\waibao\CopyTool\CopyTool\obj\Debug\CopyTool.pdb
 D:\waibao\CopyTool\CopyTool\bin\Debug\CopyTool.exe.config
-D:\waibao\CopyTool\CopyTool\bin\Debug\Comp.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OOXML.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OpenXmlFormats.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\ICSharpCode.SharpZipLib.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.OpenXml4Net.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\Comp.pdb
-D:\waibao\CopyTool\CopyTool\bin\Debug\NPOI.xml
-D:\waibao\CopyTool\CopyTool\bin\Debug\Model.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\Model.pdb
-D:\waibao\CopyTool\CopyTool\bin\Debug\Newtonsoft.Json.dll
-D:\waibao\CopyTool\CopyTool\bin\Debug\Newtonsoft.Json.xml
 D:\S\CopyTool\CopyTool\bin\Debug\CopyTool.exe.config
 D:\S\CopyTool\CopyTool\bin\Debug\CopyTool.exe
 D:\S\CopyTool\CopyTool\bin\Debug\CopyTool.pdb
@@ -77,3 +65,4 @@ D:\S\CopyTool\CopyTool\bin\Debug\Sszg.Tool.ComModule.ItemCheck.dll
 D:\S\CopyTool\CopyTool\bin\Debug\AxInterop.HTMLEditorLib.dll
 D:\S\CopyTool\CopyTool\bin\Debug\Interop.HTMLEditorLib.dll
 D:\S\CopyTool\CopyTool\bin\Debug\Newtonsoft.Json.Net20.dll
+D:\waibao\CopyTool\CopyTool\bin\Debug\Newtonsoft.Json.Net20.dll

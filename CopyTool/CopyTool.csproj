@@ -41,6 +41,10 @@
     <Reference Include="Sszg.Tool.ComModule.Commom">
       <HintPath>..\..\..\Program Files (x86)\Huatone\甩手工具箱5.03beta版\Tool\COMMODULE_4PLUS\Sszg.Tool.ComModule.Commom.dll</HintPath>
     </Reference>
+    <Reference Include="Sszg.Tool.ComModule.DbEntity, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Huatone\甩手工具箱5.03beta版\Tool\COMMODULE_4PLUS\Sszg.Tool.ComModule.DbEntity.dll</HintPath>
+    </Reference>
     <Reference Include="Sszg.Tool.ComModule.Download">
       <HintPath>..\..\..\Program Files (x86)\Huatone\甩手工具箱5.03beta版\Tool\COMMODULE_4PLUS\Sszg.Tool.ComModule.Download.dll</HintPath>
     </Reference>
