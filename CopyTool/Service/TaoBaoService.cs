@@ -1,9 +1,11 @@
 ﻿
+using CopyTool.Helper;
 using Newtonsoft.Json;
 using Sszg.CommonUtil;
 using Sszg.DataUtil;
 using Sszg.Tool.ComModule.Commom;
 using Sszg.Tool.ComModule.Download.ViewEntity;
+using Sszg.ToolBox.DbEntity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -367,7 +369,7 @@ namespace CopyTool.Service
                     string empty6 = string.Empty;
                     if (fromType == 0)
                     {
-                        // GetPropertyStrForLocalSnatch(dicProNameAndProValue, sellProInfoList, text3, out empty3, out empty4, out empty5, out empty6);
+                         GetPropertyStrForLocalSnatch(dicProNameAndProValue, sellProInfoList, text3, out empty3, out empty4, out empty5, out empty6);
                     }
                     else
                     {
@@ -568,166 +570,274 @@ namespace CopyTool.Service
             }
         }
 
-        //internal static void GetPropertyStrForLocalSnatch(Dictionary<string, string> dicProNameAndProValue, IList<SellProInfo> sellProInfoList, string cid, out string propsStr, out string propsNameStr, out string inputStr, out string inputStrName)
-        //{
+        internal static void GetPropertyStrForLocalSnatch(Dictionary<string, string> dicProNameAndProValue, IList<SellProInfo> sellProInfoList, string cid, out string propsStr, out string propsNameStr, out string inputStr, out string inputStrName)
+        {
 
-        //    int num = 100001;
-        //    Dictionary<string, string> dictionary = new Dictionary<string, string>();
-        //    propsStr = string.Empty;
-        //    propsNameStr = string.Empty;
-        //    inputStr = string.Empty;
-        //    inputStrName = string.Empty;
-        //    if (dicProNameAndProValue != null && dicProNameAndProValue.Count > 0)
-        //    {
-        //        int num2 = 0;
-        //        Sys_sysSort val = ToolServer.get_ProductData().GetSortBySysIdAndKeys(1, cid);
-        //        if (val != null)
-        //        {
-        //            num2 = val.get_Id();
-        //        }
-        //        if (num2 > 0)
-        //        {
-        //            Dictionary<string, string> dictionary2 = new Dictionary<string, string>();
-        //            DataTable propertyDtBySortId = ToolServer.get_ProductData().GetPropertyDtBySortId(num2);
-        //            DataTable propertyValueDtBySortId = ToolServer.get_ProductData().GetPropertyValueDtBySortId(num2);
-        //            foreach (KeyValuePair<string, string> item in dicProNameAndProValue)
-        //            {
-        //                try
-        //                {
-        //                    if (!dictionary.ContainsKey(item.Value + item.Key))
-        //                    {
-        //                        string likeStrForDtSelect = GetLikeStrForDtSelect(item.Key);
-        //                        DataRow[] array = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "'");
-        //                        if (item.Key == "品牌" && item.Key == "品牌")
-        //                        {
-        //                            bool flag = false;
-        //                            DataRow dataRow = null;
-        //                            DataRow[] array2 = array;
-        //                            foreach (DataRow dataRow2 in array2)
-        //                            {
-        //                                DataRow[] array3 = propertyValueDtBySortId.Select("propertyid='" + dataRow2["id"].ToString() + "' and name = '" + DbUtil.OerateSpecialChar(item.Value) + "'");
-        //                                if (array3 != null && array3.Length > 0)
-        //                                {
-        //                                    flag = true;
-        //                                    dataRow = dataRow2;
-        //                                    break;
-        //                                }
-        //                            }
-        //                            if (flag && dataRow != null)
-        //                            {
-        //                                array[0] = dataRow;
-        //                            }
-        //                            else
-        //                            {
-        //                                DataRow dataRow3 = null;
-        //                                DataRow[] array4 = array;
-        //                                foreach (DataRow dataRow4 in array4)
-        //                                {
-        //                                    if (dataRow4["parentId"].ToString() == "0")
-        //                                    {
-        //                                        dataRow3 = dataRow4;
-        //                                        break;
-        //                                    }
-        //                                }
-        //                                if (dataRow3 != null)
-        //                                {
-        //                                    array[0] = dataRow3;
-        //                                }
-        //                            }
-        //                        }
-        //                        if (array != null && array.Length > 0 && DataConvert.ToInt(array[0]["isSellPro"]) != 1 && DataConvert.ToInt(array[0]["valueType"]) == 0)
-        //                        {
-        //                            string proId = array[0]["id"].ToString();
-        //                            GetChildPropertyAndSetProps(propertyDtBySortId, propertyValueDtBySortId, dictionary, dicProNameAndProValue, likeStrForDtSelect, ref propsStr, ref propsNameStr, ref inputStr, ref inputStrName, proId, item.Value, ref num);
-        //                        }
-        //                        else if (array != null && array.Length > 0 && DataConvert.ToInt(array[0]["isSellPro"]) != 1 && DataConvert.ToInt(array[0]["valueType"]) == 1)
-        //                        {
-        //                            string text = array[0]["id"].ToString();
-        //                            string[] array5 = item.Value.Trim().Split(new char[2]
-        //                            {
-        //                                ' ',
-        //                                ','
-        //                            }, StringSplitOptions.RemoveEmptyEntries);
-        //                            if (array5 != null && array5.Length > 0)
-        //                            {
-        //                                DataRow[] array6 = null;
-        //                                string[] array7 = array5;
-        //                                foreach (string text2 in array7)
-        //                                {
-        //                                    array6 = propertyValueDtBySortId.Select("propertyid='" + text + "' and name = '" + DbUtil.OerateSpecialChar(text2) + "'");
-        //                                    if (array6 != null && array6.Length > 0)
-        //                                    {
-        //                                        propsStr = propsStr + array6[0]["value"].ToString().Trim() + ";";
-        //                                        string text3 = propsNameStr;
-        //                                        propsNameStr = text3 + array6[0]["value"].ToString().Trim() + ":" + likeStrForDtSelect + ":" + array6[0]["name"].ToString().Trim() + ";";
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                        else if (array != null && array.Length > 0 && DataConvert.ToInt(array[0]["isSellPro"]) != 1 && DataConvert.ToInt(array[0]["valueType"]) == 2)
-        //                        {
-        //                            if (!dictionary2.ContainsKey(DbUtil.OerateSpecialChar(likeStrForDtSelect)))
-        //                            {
-        //                                DataRow[] array8 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and levels = 1 and propertyType = 1");
-        //                                if (array8 == null || array8.Length <= 0)
-        //                                {
-        //                                    array8 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and levels = 1");
-        //                                }
-        //                                if (array8 != null && array8.Length > 0)
-        //                                {
-        //                                    string text4 = array8[0]["keys"] + ":11111";
-        //                                    propsStr = propsStr + text4 + ";";
-        //                                    object obj = propsNameStr;
-        //                                    propsNameStr = obj + text4 + ":" + array8[0]["name"] + ":" + item.Value + ";";
-        //                                    dictionary2[DbUtil.OerateSpecialChar(likeStrForDtSelect)] = array8[0]["keys"].ToString();
-        //                                }
-        //                            }
-        //                            else
-        //                            {
-        //                                string text5 = dictionary2[DbUtil.OerateSpecialChar(likeStrForDtSelect)];
-        //                                DataRow[] array9 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and keys = '" + text5 + "'");
-        //                                if (array9 != null && array9.Length > 0)
-        //                                {
-        //                                    int num3 = DataConvert.ToInt(array9[0]["propertyType"]);
-        //                                    DataRow[] array10 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and levels = " + num3 + 1);
-        //                                    if (array10 != null && array10.Length > 0)
-        //                                    {
-        //                                        string text6 = array10[0]["keys"] + ":11111";
-        //                                        propsStr = propsStr + text6 + ";";
-        //                                        object obj2 = propsNameStr;
-        //                                        propsNameStr = obj2 + text6 + ":" + array10[0]["name"] + ":" + item.Value + ";";
-        //                                        dictionary2[DbUtil.OerateSpecialChar(likeStrForDtSelect)] = array10[0]["keys"].ToString();
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Log.WriteLog(ex);
-        //                }
-        //            }
-        //            if (sellProInfoList != null && sellProInfoList.Count > 0)
-        //            {
-        //                foreach (SellProInfo sellProInfo in sellProInfoList)
-        //                {
-        //                    propsStr = propsStr + sellProInfo.Value.Trim() + ";";
-        //                    if (sellProInfo.Value.IndexOf(":") > 0)
-        //                    {
-        //                        string text7 = sellProInfo.Value.Substring(0, sellProInfo.Value.IndexOf(":"));
-        //                        DataRow[] array11 = propertyDtBySortId.Select("keys='" + DbUtil.OerateSpecialChar(text7) + "'");
-        //                        if (array11 != null && array11.Length > 0)
-        //                        {
-        //                            object obj3 = propsNameStr;
-        //                            propsNameStr = obj3 + sellProInfo.Value.Trim() + ":" + array11[0]["name"] + ":" + sellProInfo.Name.Trim().Trim() + ";";
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+            int num = 100001;
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            propsStr = string.Empty;
+            propsNameStr = string.Empty;
+            inputStr = string.Empty;
+            inputStrName = string.Empty;
+            if (dicProNameAndProValue != null && dicProNameAndProValue.Count > 0)
+            {
+                int num2 = 0;
+                Sys_sysSort val = DataHelper.GetSysSort(cid);// ToolServer.get_ProductData().GetSortBySysIdAndKeys(1, cid);
+                if (val != null)
+                {
+                    num2 = val.Id;
+                }
+                if (num2 > 0)
+                {
+                    Dictionary<string, string> dictionary2 = new Dictionary<string, string>();
+                    DataTable propertyDtBySortId = DataHelper.GetPropertyDtBySortId(num2);
+                    DataTable propertyValueDtBySortId = DataHelper.GetPropertyValueDtBySortId(num2);// ToolServer.get_ProductData().GetPropertyValueDtBySortId(num2);
+                    foreach (KeyValuePair<string, string> item in dicProNameAndProValue)
+                    {
+                        try
+                        {
+                            if (!dictionary.ContainsKey(item.Value + item.Key))
+                            {
+                                string likeStrForDtSelect = GetLikeStrForDtSelect(item.Key);
+                                DataRow[] array = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "'");
+                                if (item.Key == "品牌" && item.Key == "品牌")
+                                {
+                                    bool flag = false;
+                                    DataRow dataRow = null;
+                                    DataRow[] array2 = array;
+                                    foreach (DataRow dataRow2 in array2)
+                                    {
+                                        DataRow[] array3 = propertyValueDtBySortId.Select("propertyid='" + dataRow2["id"].ToString() + "' and name = '" + DbUtil.OerateSpecialChar(item.Value) + "'");
+                                        if (array3 != null && array3.Length > 0)
+                                        {
+                                            flag = true;
+                                            dataRow = dataRow2;
+                                            break;
+                                        }
+                                    }
+                                    if (flag && dataRow != null)
+                                    {
+                                        array[0] = dataRow;
+                                    }
+                                    else
+                                    {
+                                        DataRow dataRow3 = null;
+                                        DataRow[] array4 = array;
+                                        foreach (DataRow dataRow4 in array4)
+                                        {
+                                            if (dataRow4["parentId"].ToString() == "0")
+                                            {
+                                                dataRow3 = dataRow4;
+                                                break;
+                                            }
+                                        }
+                                        if (dataRow3 != null)
+                                        {
+                                            array[0] = dataRow3;
+                                        }
+                                    }
+                                }
+                                if (array != null && array.Length > 0 && DataConvert.ToInt(array[0]["isSellPro"]) != 1 && DataConvert.ToInt(array[0]["valueType"]) == 0)
+                                {
+                                    string proId = array[0]["id"].ToString();
+                                    GetChildPropertyAndSetProps(propertyDtBySortId, propertyValueDtBySortId, dictionary, dicProNameAndProValue, likeStrForDtSelect, ref propsStr, ref propsNameStr, ref inputStr, ref inputStrName, proId, item.Value, ref num);
+                                }
+                                else if (array != null && array.Length > 0 && DataConvert.ToInt(array[0]["isSellPro"]) != 1 && DataConvert.ToInt(array[0]["valueType"]) == 1)
+                                {
+                                    string text = array[0]["id"].ToString();
+                                    string[] array5 = item.Value.Trim().Split(new char[2]
+                                    {
+                                        ' ',
+                                        ','
+                                    }, StringSplitOptions.RemoveEmptyEntries);
+                                    if (array5 != null && array5.Length > 0)
+                                    {
+                                        DataRow[] array6 = null;
+                                        string[] array7 = array5;
+                                        foreach (string text2 in array7)
+                                        {
+                                            array6 = propertyValueDtBySortId.Select("propertyid='" + text + "' and name = '" + DbUtil.OerateSpecialChar(text2) + "'");
+                                            if (array6 != null && array6.Length > 0)
+                                            {
+                                                propsStr = propsStr + array6[0]["value"].ToString().Trim() + ";";
+                                                string text3 = propsNameStr;
+                                                propsNameStr = text3 + array6[0]["value"].ToString().Trim() + ":" + likeStrForDtSelect + ":" + array6[0]["name"].ToString().Trim() + ";";
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (array != null && array.Length > 0 && DataConvert.ToInt(array[0]["isSellPro"]) != 1 && DataConvert.ToInt(array[0]["valueType"]) == 2)
+                                {
+                                    if (!dictionary2.ContainsKey(DbUtil.OerateSpecialChar(likeStrForDtSelect)))
+                                    {
+                                        DataRow[] array8 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and levels = 1 and propertyType = 1");
+                                        if (array8 == null || array8.Length <= 0)
+                                        {
+                                            array8 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and levels = 1");
+                                        }
+                                        if (array8 != null && array8.Length > 0)
+                                        {
+                                            string text4 = array8[0]["keys"] + ":11111";
+                                            propsStr = propsStr + text4 + ";";
+                                            object obj = propsNameStr;
+                                            propsNameStr = obj + text4 + ":" + array8[0]["name"] + ":" + item.Value + ";";
+                                            dictionary2[DbUtil.OerateSpecialChar(likeStrForDtSelect)] = array8[0]["keys"].ToString();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        string text5 = dictionary2[DbUtil.OerateSpecialChar(likeStrForDtSelect)];
+                                        DataRow[] array9 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and keys = '" + text5 + "'");
+                                        if (array9 != null && array9.Length > 0)
+                                        {
+                                            int num3 = DataConvert.ToInt(array9[0]["propertyType"]);
+                                            DataRow[] array10 = propertyDtBySortId.Select("name='" + DbUtil.OerateSpecialChar(likeStrForDtSelect) + "' and levels = " + num3 + 1);
+                                            if (array10 != null && array10.Length > 0)
+                                            {
+                                                string text6 = array10[0]["keys"] + ":11111";
+                                                propsStr = propsStr + text6 + ";";
+                                                object obj2 = propsNameStr;
+                                                propsNameStr = obj2 + text6 + ":" + array10[0]["name"] + ":" + item.Value + ";";
+                                                dictionary2[DbUtil.OerateSpecialChar(likeStrForDtSelect)] = array10[0]["keys"].ToString();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.WriteLog(ex);
+                        }
+                    }
+                    if (sellProInfoList != null && sellProInfoList.Count > 0)
+                    {
+                        foreach (SellProInfo sellProInfo in sellProInfoList)
+                        {
+                            propsStr = propsStr + sellProInfo.Value.Trim() + ";";
+                            if (sellProInfo.Value.IndexOf(":") > 0)
+                            {
+                                string text7 = sellProInfo.Value.Substring(0, sellProInfo.Value.IndexOf(":"));
+                                DataRow[] array11 = propertyDtBySortId.Select("keys='" + DbUtil.OerateSpecialChar(text7) + "'");
+                                if (array11 != null && array11.Length > 0)
+                                {
+                                    object obj3 = propsNameStr;
+                                    propsNameStr = obj3 + sellProInfo.Value.Trim() + ":" + array11[0]["name"] + ":" + sellProInfo.Name.Trim().Trim() + ";";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private static string GetLikeStrForDtSelect(string likeOrdinaryStr)
+        {
+            string text = DbUtil.OerateSpecialChar(likeOrdinaryStr);
+            if (string.IsNullOrEmpty(text))
+            {
+                text = string.Empty;
+            }
+            return text.Replace("[", "【").Replace("]", "】").Replace("%", "[%]")
+                .Replace("_", "[_]")
+                .Replace("'", "，")
+                .Replace("*", "[*]")
+                .Trim();
+        }
+        private static void GetChildPropertyAndSetProps(DataTable dtProperty, DataTable dtPropertyValue, Dictionary<string, string> dicDistributionProValueAndProName, Dictionary<string, string> dicProNameAndProValue, string key, ref string propsStr, ref string propsNameStr, ref string inputStr, ref string inputStrName, string proId, string value, ref int keyIndex)
+        {
+            if (dtPropertyValue != null && dtPropertyValue.Rows != null && dtPropertyValue.Rows.Count > 0)
+            {
+                DataRow[] array = null;
+                array = dtPropertyValue.Select("propertyid='" + proId + "' and name = '" + DbUtil.OerateSpecialChar(value) + "'");
+                if (array == null || array.Length <= 0)
+                {
+                    DataRow[] array2 = dtPropertyValue.Select("propertyid='" + proId + "'");
+                    int num = 0;
+                    while (num < array2.Length)
+                    {
+                        if (!value.Contains(array2[num]["name"].ToString()))
+                        {
+                            num++;
+                            continue;
+                        }
+                        value = array2[num]["name"].ToString();
+                        break;
+                    }
+                    array = dtPropertyValue.Select("propertyid='" + proId + "' and name = '" + DbUtil.OerateSpecialChar(value) + "'");
+                }
+                if (array != null && array.Length > 0)
+                {
+                    propsStr = propsStr + array[0]["value"].ToString().Trim() + ";";
+                    string text = propsNameStr;
+                    propsNameStr = text + array[0]["value"].ToString().Trim() + ":" + key + ":" + array[0]["name"].ToString().Trim() + ";";
+                    if (DataConvert.ToBoolean(array[0]["hasChildProperty"]))
+                    {
+                        string text2 = array[0]["value"].ToString();
+                        DataRow[] array3 = dtProperty.Select("parentPropertyValue='" + DbUtil.OerateSpecialChar(text2) + "'");
+                        if (array3 != null && array3.Length > 0)
+                        {
+                            key = array3[0]["name"].ToString();
+                            if (dicProNameAndProValue.ContainsKey(key) && !dicDistributionProValueAndProName.ContainsKey(dicProNameAndProValue[key] + key))
+                            {
+                                proId = array3[0]["id"].ToString();
+                                value = dicProNameAndProValue[key];
+                                dicDistributionProValueAndProName[value + key] = key;
+                                GetChildPropertyAndSetProps(dtProperty, dtPropertyValue, dicDistributionProValueAndProName, dicProNameAndProValue, key, ref propsStr, ref propsNameStr, ref inputStr, ref inputStrName, proId, value, ref keyIndex);
+                            }
+                        }
+                    }
+                }
+                if (array == null || array.Length <= 0)
+                {
+                    array = dtPropertyValue.Select("propertyid='" + proId + "' and name = '" + DbUtil.OerateSpecialChar("其他") + "'");
+                    if (array != null && array.Length > 0)
+                    {
+                        string text3 = array[0]["value"].ToString().Substring(0, array[0]["value"].ToString().IndexOf(':'));
+                        string text4 = text3 + ":" + keyIndex;
+                        propsStr = propsStr + text4 + ";";
+                        string text5 = propsNameStr;
+                        propsNameStr = text5 + text4 + ":" + key + ":" + value + ";";
+                        inputStr = inputStr + text3 + ",";
+                        inputStrName = inputStrName + value + ",";
+                        keyIndex++;
+                        if (DataConvert.ToBoolean(array[0]["hasChildProperty"]))
+                        {
+                            string text6 = array[0]["value"].ToString();
+                            DataRow[] array4 = dtProperty.Select("parentPropertyValue='" + DbUtil.OerateSpecialChar(text6) + "'");
+                            if (array4 != null && array4.Length > 0)
+                            {
+                                DataRow[] array5 = array4;
+                                foreach (DataRow dataRow in array5)
+                                {
+                                    key = dataRow["name"].ToString();
+                                    if (dicProNameAndProValue.ContainsKey(key) && !dicDistributionProValueAndProName.ContainsKey(dicProNameAndProValue[key] + key))
+                                    {
+                                        proId = dataRow["id"].ToString();
+                                        value = dicProNameAndProValue[key];
+                                        dicDistributionProValueAndProName[value + key] = key;
+                                        GetChildPropertyAndSetProps(dtProperty, dtPropertyValue, dicDistributionProValueAndProName, dicProNameAndProValue, key, ref propsStr, ref propsNameStr, ref inputStr, ref inputStrName, proId, value, ref keyIndex);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (dtProperty != null && dtProperty.Rows.Count > 0)
+                {
+                    if (array != null && array.Length > 0)
+                    {
+                        return;
+                    }
+                    DataRow[] array6 = dtProperty.Select("id='" + proId + "'");
+                    if (array6 != null && array6.Length > 0)
+                    {
+                        propsStr = propsStr + array6[0][17].ToString().Trim() + ";";
+                        string text7 = propsNameStr;
+                        propsNameStr = text7 + array6[0][17].ToString().Trim() + ":" + key + ":" + value + ";";
+                    }
+                }
+            }
+        }
 
         private string GetGoodsCPrice(List<Sku> skuList)
         {

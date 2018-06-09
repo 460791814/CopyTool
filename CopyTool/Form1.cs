@@ -7,6 +7,7 @@ using CopyTool.Util;
 
 using Newtonsoft.Json;
 using Sszg.CommonUtil;
+using Sszg.Tool.ComModule.DbEntity;
 using Sszg.Tool.ComModule.Download.ViewEntity;
 using Sszg.ToolBox.DbEntity;
 using System;
@@ -272,15 +273,17 @@ namespace CopyTool
         {
             TaoBaoService taobaoService = new TaoBaoService();
             TaoBaoUtils taoBaoUtils = new TaoBaoUtils();
-            ItemGetResponse itemResponse = taobaoService.GetItemGetMobileResponseByOnlinekeyNew("566940414408", 1);
+            ItemGetResponse itemResponse = taobaoService.GetItemGetMobileResponseByOnlinekeyNew("566940414408", 0);
             var item = itemResponse.Item;
             List<string[]> _outputList = new List<string[]>();
             _outputList.Add(new string[] { "version 1.00" });
             _outputList.Add(ConfigHelper.TaoBaoHeaderFieldRow);
             _outputList.Add(ConfigHelper.TaoBaoHeaderRow);
             ProductItem productItem = new ProductItem();
+            productItem.SysId = 1;//代表淘宝
             productItem.Name = item.Title;
             productItem.ProductSortKeys = DataConvert.ToString(item.Cid);
+            productItem.SortKey = productItem.ProductSortKeys;
             productItem.ActualNewOrOld = taoBaoUtils.GetItzemStuffStatus(item.StuffStatus);
             productItem.Province = item.Location.State;
             productItem.City = item.Location.City;
@@ -313,13 +316,22 @@ namespace CopyTool
             productItem.IsRmd = DataConvert.ToString(item.HasShowcase);
             productItem.ActualOnSellDate = DataConvert.ToDateTime(item.ListTime).ToString("yyyy-MM-dd HH:mm:ss").Replace("/", "-");
             productItem.Content = item.Desc;
-            //productItem.PropertyValue
+            Dictionary<string, SellProInfo> dictParam = new Dictionary<string, SellProInfo>();
+            string empty = string.Empty;
+            int sortId = DataHelper.GetSysSort(productItem.ProductSortKeys).Id;
+          var propertyList =  taoBaoUtils.SetspPropertyList(item, sortId, out dictParam, out empty);
+            foreach (Sp_property prop_item in propertyList)
+            {
+                prop_item.SysProperty = DataHelper.GetPropertyById(prop_item.Propertyid);
+            }
+            //里面给productItem.PropertyValue，productItem.UserInputPropIDs,productItem.UserInputPropValues，productItem.Features赋值了
+            taoBaoUtils.HandleProperty( productItem, propertyList);
+
             //productItem.ActualShipTpl
             productItem.Discount = DataConvert.ToString(item.HasDiscount);
             //productItem.Photo
             //productItem.SellProperty
-            //productItem.UserInputPropIDs
-            //productItem.UserInputPropValues
+
             productItem.Code = taoBaoUtils.GetCode(item.PropsName, item.OuterId);
             //productItem.CustomProperty
             productItem.OnlineKey = DataConvert.ToString(item.NumIid);
@@ -357,9 +369,10 @@ namespace CopyTool
             //productItem.SkuBarcode
             //productItem.CpvMemo
             //productItem.InputCustomCpv
-            //productItem.Features
+
 
             productItem.OperateTypes = taoBaoUtils.GetOperateTypes(item.DetailUrl);
+
 
             _outputList.Add(taoBaoUtils.TaobaoPrepareCSVData(productItem));
             taoBaoUtils.WriteDicToFile(@"F:\jar\113.csv", _outputList);

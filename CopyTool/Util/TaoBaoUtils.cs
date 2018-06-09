@@ -1,13 +1,18 @@
-﻿using CopyTool.Model;
+﻿using CopyTool.Helper;
+using CopyTool.Model;
 using Sszg.CommonUtil;
+using Sszg.Tool.ComModule.Commom;
 using Sszg.Tool.ComModule.DbEntity;
+using Sszg.Tool.ComModule.Download.ViewEntity;
 using Sszg.ToolBox.DbEntity;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using Top.Api.Domain;
 using Util;
 
@@ -385,130 +390,1053 @@ namespace CopyTool.Util
             }
             return result;
         }
-        private string HandleSellProperty(int id, out string skuBarcode, ProductItem productItem)
+
+        public  IList<Sp_property> SetspPropertyList(Item item,  int sortId, out Dictionary<string, SellProInfo> dicProValueAndSellProInfos, out string code)
         {
-            //IL_0009: Unknown result type (might be due to invalid IL or missing references)
-            //IL_000e: Expected O, but got Unknown
-            //IL_001c: Unknown result type (might be due to invalid IL or missing references)
-            //IL_0028: Unknown result type (might be due to invalid IL or missing references)
-            //IL_002d: Expected O, but got Unknown
-            //IL_0031: Unknown result type (might be due to invalid IL or missing references)
-            //IL_003c: Unknown result type (might be due to invalid IL or missing references)
-            //IL_0041: Expected O, but got Unknown
-            //IL_028e: Unknown result type (might be due to invalid IL or missing references)
-            //IL_029c: Unknown result type (might be due to invalid IL or missing references)
-            //IL_02a1: Expected O, but got Unknown
-            //IL_02c1: Unknown result type (might be due to invalid IL or missing references)
-            //IL_0418: Unknown result type (might be due to invalid IL or missing references)
-            //IL_0426: Unknown result type (might be due to invalid IL or missing references)
-            //IL_042b: Expected O, but got Unknown
-            skuBarcode = string.Empty;
-            int sysId = 1;
-            Sys_sysSort val = new Sys_sysSort();
-            if (!string.IsNullOrEmpty(productItem.SortKey))
+            IList<Sys_sysProperty> sysSysPropertyList= DataHelper.GetPropertyBySortId(sortId);
+            DataTable dtPropertyValue= DataHelper.GetPropertyValueDtBySortId(sortId);
+            bool flag = false;// DataConvert.ToBoolean((object)ToolServer.get_ConfigData().GetUserConfig("AppConfig", base.ToolCode.ToUpper().ToString(), "CItemPicShieldCheck", "false"));
+            Dictionary<string, SellNewProInfo> sourceProValueAndNewProValue = new Dictionary<string, SellNewProInfo>();
+            bool flag2 = false;// Convert.ToBoolean(ToolServer.get_ConfigData().GetUserConfig("AppConfig", "PicSet", "SellProperyPic", "false"));
+            code = string.Empty;
+            IList<Sp_property> list = new List<Sp_property>();
+            IList<Sys_sysProperty> propertyBySortId = DataHelper.GetPropertyBySortId(sortId);
+            Dictionary<string, Sys_sysProperty> dictionary = new Dictionary<string, Sys_sysProperty>();
+            Dictionary<string, string> dictionary2 = new Dictionary<string, string>();
+            List<string> list2 = new List<string>();
+            if (sysSysPropertyList != null)
             {
-                val = ToolServer.get_ProductData().GetSortBySysIdAndKeys(1, productItem.SortKey);
-            }
-            if (val == null)
-            {
-                val = ToolServer.get_ProductData().GetSortById(productItem.SysSortId);
-            }
-            if (val == null)
-            {
-                Log.WriteLog("导出商品时，获取类目信息失败，" + Environment.StackTrace);
-                return string.Empty;
-            }
-            IList<Sp_sellProperty> sellProperty = _exportPackageDao.GetSellProperty(id, sysId);
-            if (sellProperty != null && sellProperty.Count != 0)
-            {
-                List<string> list = new List<string>();
-                for (int num = sellProperty.Count - 1; num >= 0; num--)
+                foreach (Sys_sysProperty sysSysProperty in sysSysPropertyList)
                 {
-                    if (list.Contains(sellProperty[num].Sellproinfos))
+                    if (sysSysProperty.Valuetype == 2 && sysSysProperty.Parentid == 0)
                     {
-                        sellProperty.Remove(sellProperty[num]);
+                        dictionary[sysSysProperty.Keys] = sysSysProperty;
+                    }
+                    if (sysSysProperty.Parentid == 0)
+                    {
+                        dictionary2[sysSysProperty.Keys] = DataConvert.ToString((object)sysSysProperty.Id);
+                    }
+                    if (sysSysProperty.Issellpro)
+                    {
+                        list2.Add(DataConvert.ToString((object)sysSysProperty.Id));
+                    }
+                }
+            }
+            Dictionary<string, DataRow> dictionary3 = new Dictionary<string, DataRow>();
+            foreach (DataRow row in dtPropertyValue.Rows)
+            {
+                dictionary3[DataConvert.ToString(row["Value"])] = row;
+            }
+            dicProValueAndSellProInfos = new Dictionary<string, SellProInfo>();
+            SellProInfo sellProInfo = null;
+            int num = 0;
+            if (item == null)
+            {
+                return list;
+            }
+            Dictionary<string, PropertyAliasViewEntity> dictionary4 = new Dictionary<string, PropertyAliasViewEntity>();
+            PropertyAliasViewEntity propertyAliasViewEntity = new PropertyAliasViewEntity();
+            string empty = string.Empty;
+            string empty2 = string.Empty;
+            if (item.PropImgs != null && item.PropImgs.Count > 0)
+            {
+                foreach (PropImg propImg in item.PropImgs)
+                {
+                    propertyAliasViewEntity = new PropertyAliasViewEntity();
+                    empty = (propertyAliasViewEntity.Value = propImg.Properties);
+                    propertyAliasViewEntity.ImageUrl = propImg.Url;
+                    dictionary4[empty] = propertyAliasViewEntity;
+                }
+            }
+            if (!string.IsNullOrEmpty(item.PropertyAlias))
+            {
+                Dictionary<string, string> dictionary5 = new Dictionary<string, string>();
+                int num2 = 0;
+                string[] array = item.PropertyAlias.Split(new string[1]
+                {
+                    ";"
+                }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string text in array)
+                {
+                    num = text.LastIndexOf(":");
+                    if (num > 0)
+                    {
+                        empty = text.Substring(0, num);
+                        empty2 = text.Substring(num + 1);
+                        empty2 = SubStringToMaxByteLength(empty2, 30);
+                        propertyAliasViewEntity = ((!dictionary4.ContainsKey(empty)) ? new PropertyAliasViewEntity() : dictionary4[empty]);
+                        propertyAliasViewEntity.Value = text.Substring(0, num);
+                        propertyAliasViewEntity.Alias = HttpUtility.UrlDecode(text.Substring(num + 1));
+                        propertyAliasViewEntity.Alias = SubStringToMaxByteLength(propertyAliasViewEntity.Alias, 30);
+                        if (!string.IsNullOrEmpty(propertyAliasViewEntity.Alias))
+                        {
+                            if (dictionary5.ContainsKey(propertyAliasViewEntity.Alias))
+                            {
+                                num2++;
+                                string key = propertyAliasViewEntity.Alias = propertyAliasViewEntity.Alias.Substring(0, propertyAliasViewEntity.Alias.Length - 1) + num2;
+                                dictionary4[propertyAliasViewEntity.Value] = propertyAliasViewEntity;
+                                dictionary5[key] = propertyAliasViewEntity.Value;
+                            }
+                            else
+                            {
+                                dictionary4[propertyAliasViewEntity.Value] = propertyAliasViewEntity;
+                                dictionary5[propertyAliasViewEntity.Alias] = propertyAliasViewEntity.Value;
+                            }
+                        }
+                        else
+                        {
+                            dictionary4[propertyAliasViewEntity.Value] = propertyAliasViewEntity;
+                        }
+                    }
+                }
+            }
+            string empty7 = string.Empty;
+            string empty3 = string.Empty;
+            string proKey = string.Empty;
+            string empty4 = string.Empty;
+            string empty5 = string.Empty;
+            Sp_property sp_property = null;
+            Dictionary<string, string> inputPidAndStr = GetInputPidAndStr(item);
+            ImageOperator imageOperator = new ImageOperator();
+            List<PropsViewEntity> lstPropsDTO = GetLstPropsDTO(item.PropsName);
+            Dictionary<string, string> dictionary6 = new Dictionary<string, string>();
+            Dictionary<string, string> dictionary7 = new Dictionary<string, string>();
+            List<PropsViewEntity>.Enumerator enumerator4 = lstPropsDTO.GetEnumerator();
+            try
+            {
+                while (enumerator4.MoveNext())
+                {
+                    PropsViewEntity current3 = enumerator4.Current;
+                    dictionary6[current3.PropertyName] = current3.PropertyValueName;
+                    dictionary7[current3.PropertyValue] = current3.PropertyValueName;
+                }
+            }
+            finally
+            {
+                ((IDisposable)enumerator4).Dispose();
+            }
+            foreach (KeyValuePair<string, PropertyAliasViewEntity> item2 in dictionary4)
+            {
+                if (item2.Value != null && string.IsNullOrEmpty(item2.Value.Alias) && dictionary7.ContainsKey(item2.Key))
+                {
+                    item2.Value.Alias = dictionary7[item2.Key];
+                    byte[] bytes = Encoding.Default.GetBytes(item2.Value.Alias);
+                    int num3 = bytes.Length;
+                    if (num3 > 30)
+                    {
+                        string text3 = Encoding.Default.GetString(bytes, 0, 30);
+                        if (text3.EndsWith("?"))
+                        {
+                            text3 = text3.TrimEnd('?');
+                        }
+                        item2.Value.Alias = text3;
+                    }
+                }
+            }
+            IList<PropsViewEntity> list3 = new List<PropsViewEntity>();
+            Dictionary<string, string> dictionary8 = new Dictionary<string, string>();
+            List<PropsViewEntity> list4 = new List<PropsViewEntity>();
+            for (int j = 0; j < lstPropsDTO.Count; j++)
+            {
+                string propertyValueName = lstPropsDTO[j].PropertyValueName;
+                string propertyName = lstPropsDTO[j].PropertyName;
+                for (int k = j + 1; k < lstPropsDTO.Count; k++)
+                {
+                    string propertyValueName2 = lstPropsDTO[k].PropertyValueName;
+                    string propertyName2 = lstPropsDTO[k].PropertyName;
+                    if (propertyValueName == propertyValueName2 && propertyName == propertyName2 && propertyName.Contains("颜色"))
+                    {
+                        list4.Add(lstPropsDTO[k]);
+                    }
+                }
+            }
+            enumerator4 = list4.GetEnumerator();
+            try
+            {
+                while (enumerator4.MoveNext())
+                {
+                    PropsViewEntity current5 = enumerator4.Current;
+                    lstPropsDTO.Remove(current5);
+                }
+            }
+            finally
+            {
+                ((IDisposable)enumerator4).Dispose();
+            }
+            new Dictionary<string, string>();
+            for (int l = 0; l < lstPropsDTO.Count; l++)
+            {
+                byte[] bytes2 = Encoding.Default.GetBytes(lstPropsDTO[l].PropertyValueName);
+                int num4 = bytes2.Length;
+                if (num4 > 30)
+                {
+                    string text4 = Encoding.Default.GetString(bytes2, 0, 30);
+                    if (text4.EndsWith("?"))
+                    {
+                        text4 = text4.TrimEnd('?');
+                    }
+                    if (inputPidAndStr.ContainsKey(text4))
+                    {
+                        text4 += l;
                     }
                     else
                     {
-                        list.Add(sellProperty[num].Sellproinfos);
+                        inputPidAndStr[text4] = text4;
                     }
+                    lstPropsDTO[l].PropertyValueName = text4;
                 }
-                string text = "";
-                skuBarcode = string.Empty;
-                sellProperty = OrderProperty(sellProperty, id);
-                Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            }
+            Dictionary<string, int> dictionary9 = new Dictionary<string, int>();
+            enumerator4 = lstPropsDTO.GetEnumerator();
+            long numIid;
+            try
+            {
+                while (enumerator4.MoveNext())
                 {
-                    foreach (Sp_sellProperty item in sellProperty)
+                    PropsViewEntity current6 = enumerator4.Current;
+                    DataRow dataRow2 = null;
+                    sp_property = new Sp_property();
+                    num = current6.PropertyValue.IndexOf(":");
+                    if (num != 0)
                     {
-                        string text2 = (item.Sellproinfos == null) ? "" : item.Sellproinfos;
-                        string text3 = (item.Price == 0m) ? "" : DataConvert.ToString((object)item.Price);
-                        string text4 = (item.Nums == 0) ? "" : DataConvert.ToString((object)item.Nums);
-                        string text5 = (item.Code == null) ? "" : DataConvert.ToString((object)item.Code).Replace(" ", "").Replace("\u3000", "")
-                            .Replace("/", "")
-                            .Replace("\\", "")
-                            .Replace("&", "");
-                        string text6 = text;
-                        text = text6 + text3 + ":" + text4 + ":" + text5 + ":";
-                        if (!string.IsNullOrEmpty(text2))
+                        proKey = current6.PropertyValue.Remove(num);
+                        if (dictionary.ContainsKey(proKey))
                         {
-                            string[] array = text2.Split('|');
-                            for (int i = 0; i < array.Length; i++)
+                            SellNewProInfo sellNewProInfo = null;
+                            empty3 = DataConvert.ToString((object)dictionary[proKey].Id);
+                            Sys_sysProperty val = dictionary[proKey];
+                            if (val != null && val.Name != null && (val.Name.EndsWith("货号") || val.Name.EndsWith("款号")))
                             {
-                                string[] array2 = array[i].Split(':');
-                                if (array2 != null && array2.Length > 1)
+                                code = current6.PropertyValueName;
+                            }
+                            sp_property.Propertyid = DataConvert.ToInt((object)empty3);
+                            sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                            if (dictionary[proKey].Valuetype == 2 && dictionary[proKey].Issellpro)
+                            {
+                                sellNewProInfo = new SellNewProInfo();
+                                string empty6 = string.Empty;
+                                if (dictionary9 == null || dictionary9.Count == 0)
                                 {
-                                    if (val != null && val.get_IsNewSellPro())
+                                    empty6 = proKey + ":-1001";
+                                    dictionary9.Add(proKey, -1001);
+                                    sp_property.Name = current6.PropertyValueName;
+                                    sp_property.Value = empty6;
+                                }
+                                else if (dictionary9.ContainsKey(proKey))
+                                {
+                                    Dictionary<string, int> dictionary10;
+                                    string key2;
+                                    (dictionary10 = dictionary9)[key2 = proKey] = dictionary10[key2] + -1;
+                                    empty6 = proKey + ":" + dictionary9[proKey];
+                                    sp_property.Name = current6.PropertyValueName;
+                                    sp_property.Value = empty6;
+                                }
+                                else
+                                {
+                                    empty6 = proKey + ":-1001";
+                                    dictionary9.Add(proKey, -1001);
+                                    sp_property.Name = current6.PropertyValueName;
+                                    sp_property.Value = empty6;
+                                }
+                                sellNewProInfo.Value = empty6;
+                                sellNewProInfo.Name = current6.PropertyValueName;
+                                sourceProValueAndNewProValue[current6.PropertyValue] = sellNewProInfo;
+                            }
+                            else
+                            {
+                                sp_property.Value = current6.PropertyValueName;
+                            }
+                            list.Add(sp_property);
+                            dictionary8[sp_property.Propertyid + sp_property.Value] = sp_property.Value;
+                        }
+                        else
+                        {
+                            empty4 = current6.PropertyValue;
+                            if (dictionary3.ContainsKey(empty4))
+                            {
+                                dataRow2 = dictionary3[empty4];
+                            }
+                            else
+                            {
+                                if (current6.PropertyValueName.IndexOf("'") >= 0)
+                                {
+                                    current6.PropertyValueName = current6.PropertyValueName.Replace("'", "''");
+                                }
+                                DataRow[] array2 = dtPropertyValue.Select("name='" + current6.PropertyValueName + "' and value like '%" + proKey + "%'");
+                                if (array2 != null && array2.Length > 0)
+                                {
+                                    dataRow2 = array2[0];
+                                }
+                                if (dataRow2 == null)
+                                {
+                                    empty4 = proKey + ":-1";
+                                    if (dictionary3.ContainsKey(empty4))
                                     {
-                                        Sys_sysPropertyValue val2 = ToolServer.get_ProductData().GetPropertyValueById(Convert.ToInt32(array2[1]));
-                                        if (val2 != null)
+                                        dataRow2 = dictionary3[empty4];
+                                    }
+                                }
+                            }
+                            if (dataRow2 == null)
+                            {
+                                list3.Add(current6);
+                            }
+                            else
+                            {
+                                empty3 = DataConvert.ToString(dataRow2["Propertyid"]);
+                                sp_property.Propertyid = DataConvert.ToInt((object)empty3);
+                                sp_property.Value = DataConvert.ToString(dataRow2["Value"]);
+                                sp_property.Name = DataConvert.ToString(dataRow2["Name"]);
+                                sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                                string propertyValueName3 = current6.PropertyValueName;
+                                list.Add(sp_property);
+                                dictionary8[sp_property.Propertyid + sp_property.Value] = sp_property.Value;
+                                if (dictionary4.ContainsKey(empty4))
+                                {
+                                    propertyAliasViewEntity = dictionary4[empty4];
+                                    empty5 = propertyAliasViewEntity.Alias;
+                                    foreach (Sys_sysProperty item3 in propertyBySortId)
+                                    {
+                                        if (item3.Parentprovalueid == DataConvert.ToInt(dataRow2["Id"]))
                                         {
-                                            text = text + val2.get_Value() + ";";
-                                        }
-                                        else
-                                        {
-                                            IList<Sys_sysPropertyValue> propertyValuesByPropertyId = ToolServer.get_ProductData().GetPropertyValuesByPropertyId(Convert.ToInt32(array2[0]));
-                                            if (propertyValuesByPropertyId != null && propertyValuesByPropertyId.Count > 0)
+                                            sp_property = new Sp_property();
+                                            int valuetype = item3.Valuetype;
+                                            sp_property = new Sp_property();
+                                            empty3 = DataConvert.ToString((object)item3.Id);
+                                            sp_property.Propertyid = item3.Id;
+                                            sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                                            switch (valuetype)
                                             {
-                                                string[] array3 = propertyValuesByPropertyId[0].get_Value().Split(':');
-                                                string text7 = text;
-                                                text = text7 + array3[0] + ":" + array2[1] + ";";
-                                            }
-                                            else if (array2.Length >= 2)
-                                            {
-                                                if (dictionary != null && !dictionary.ContainsKey(array2[0]))
-                                                {
-                                                    IList<Sys_sysProperty> propertyAllTopLevelProperty = _exportPackageDao.GetPropertyAllTopLevelProperty(array2[0]);
-                                                    if (propertyAllTopLevelProperty != null && propertyAllTopLevelProperty.Count == 1)
+                                                case 2:
+                                                    sp_property.Name = propertyAliasViewEntity.Alias;
+                                                    sp_property.Value = propertyAliasViewEntity.Alias;
+                                                    sp_property.Issellpro = 1;
+                                                    list.Add(sp_property);
+                                                    break;
+                                                case 3:
+                                                    if (!string.IsNullOrEmpty(propertyAliasViewEntity.ImageUrl))
                                                     {
-                                                        dictionary[array2[0]] = propertyAllTopLevelProperty[0].get_Keys();
+                                                        string text5 = imageOperator.DownLoadPicture(propertyAliasViewEntity.ImageUrl, null, 60000, 60000);
+                                                        ImageOperator imageOperator2 = imageOperator;
+                                                        string fileFullPath = text5;
+                                                        string toolCode = null;// base.ToolCode;
+                                                        numIid = item.NumIid;
+                                                        text5 = imageOperator2.TransPicture(fileFullPath, toolCode, numIid.ToString(), TransPictureType.MovePicture);
+                                                        if (flag2 && !string.IsNullOrEmpty(text5))
+                                                        {
+                                                            text5 = string.Empty;
+                                                        }
+                                                        if (!string.IsNullOrEmpty(text5))
+                                                        {
+                                                            sp_property.Name = text5;
+                                                            sp_property.Value = text5;
+                                                            sp_property.Issellpro = 1;
+                                                            if (toolCode == "UPLOADTOYF")
+                                                            {
+                                                                sp_property.PicUrl = propertyAliasViewEntity.ImageUrl;
+                                                            }
+                                                            if (flag)
+                                                            {
+                                                                sp_property.Url = propertyAliasViewEntity.ImageUrl;
+                                                            }
+                                                            list.Add(sp_property);
+                                                        }
                                                     }
-                                                }
-                                                string empty = string.Empty;
-                                                empty = ((dictionary == null || dictionary.Count <= 0 || !dictionary.ContainsKey(array2[0]) || string.IsNullOrEmpty(dictionary[array2[0]])) ? (array2[0] + ":" + array2[1] + ";") : (dictionary[array2[0]] + ":" + array2[1] + ";"));
-                                                text += empty;
+                                                    break;
                                             }
                                         }
                                     }
-                                    else
+                                }
+                                else if (sp_property.Issellpro == 1 && !propertyValueName3.Trim().Equals(sp_property.Name.Trim()))
+                                {
+                                    empty5 = propertyValueName3;
+                                    foreach (Sys_sysProperty item4 in propertyBySortId)
                                     {
-                                        Sys_sysPropertyValue val3 = ToolServer.get_ProductData().GetPropertyValueById(DataConvert.ToInt((object)array2[1]));
-                                        string text8 = (val3 != null) ? val3.get_Value() : string.Empty;
-                                        if (string.IsNullOrEmpty(text8) && array2.Length >= 2)
+                                        if (item4.Parentprovalueid == DataConvert.ToInt(dataRow2["Id"]))
                                         {
-                                            text8 = array2[0] + ":" + array2[1];
+                                            sp_property = new Sp_property();
+                                            int valuetype2 = item4.Valuetype;
+                                            sp_property = new Sp_property();
+                                            empty3 = DataConvert.ToString((object)item4.Id);
+                                            sp_property.Propertyid = item4.Id;
+                                            sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                                            if (valuetype2 == 2)
+                                            {
+                                                sp_property.Name = propertyValueName3;
+                                                sp_property.Value = propertyValueName3;
+                                                sp_property.Issellpro = 1;
+                                                list.Add(sp_property);
+                                            }
                                         }
-                                        text = text + text8 + ";";
+                                    }
+                                }
+                                else
+                                {
+                                    empty5 = DataConvert.ToString(dataRow2["Name"]).Trim();
+                                }
+                                sellProInfo = new SellProInfo();
+                                sellProInfo.Value = DataConvert.ToString(dataRow2["Propertyid"]) + ":" + DataConvert.ToString(dataRow2["Id"]);
+                                sellProInfo.Name = empty5;
+                                dicProValueAndSellProInfos[empty4] = sellProInfo;
+                                Haschildproperty(DataConvert.ToBoolean(dataRow2["Haschildproperty"]), sysSysPropertyList, empty4, dictionary6, list2, ref list);
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                ((IDisposable)enumerator4).Dispose();
+            }
+            foreach (PropsViewEntity item5 in list3)
+            {
+                DataRow dataRow3 = null;
+                sp_property = new Sp_property();
+                num = item5.PropertyValue.IndexOf(":");
+                if (num != 0)
+                {
+                    proKey = item5.PropertyValue.Remove(num);
+                    empty4 = item5.PropertyValue;
+                    DataRow[] array3 = dtPropertyValue.Select("value like '%" + proKey + "%'");
+                    if (array3 != null && array3.Length > 0)
+                    {
+                        int num5 = DataConvert.ToInt(array3[0]["Propertyid"]);
+                        Sys_sysProperty val2 = DataHelper.GetPropertyById(num5);
+                        if (val2 != null)
+                        {
+                            bool flag3 = false;
+                            DataRow[] array4 = array3;
+                            foreach (DataRow dataRow4 in array4)
+                            {
+                                if (!dictionary8.ContainsKey(num5.ToString() + DataConvert.ToString(dataRow4["Value"])))
+                                {
+                                    string value = DataConvert.ToString(dataRow4["Name"]);
+                                    if (!string.IsNullOrEmpty(value) && item5.PropertyValueName.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0)
+                                    {
+                                        dataRow3 = dataRow4;
+                                        flag3 = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!flag3 && val2.Issellpro)
+                            {
+                                array4 = array3;
+                                foreach (DataRow dataRow5 in array4)
+                                {
+                                    if (!dictionary8.ContainsKey(num5.ToString() + DataConvert.ToString(dataRow5["Value"])))
+                                    {
+                                        dataRow3 = dataRow5;
+                                        flag3 = true;
+                                        break;
+                                    }
+                                }
+                                if (array3 != null && array3.Length > 0 && dataRow3 != null && !DataConvert.ToBoolean(dataRow3["Haschildproperty"]))
+                                {
+                                    SellNewProInfo sellNewProInfo2 = sellNewProInfo2 = new SellNewProInfo();
+                                    sp_property.Propertyid = num5;
+                                    sp_property.Issellpro = (list2.Contains(DataConvert.ToString((object)num5)) ? 1 : 0);
+                                    string value2 = string.Empty;
+                                    if (dictionary9 == null || dictionary9.Count == 0)
+                                    {
+                                        value2 = proKey + ":-1001";
+                                        dictionary9.Add(proKey, -1001);
+                                        sp_property.Name = item5.PropertyValueName;
+                                        sp_property.Value = value2;
+                                    }
+                                    else if (dictionary9.ContainsKey(proKey))
+                                    {
+                                        Dictionary<string, int> dictionary10;
+                                        string key2;
+                                        (dictionary10 = dictionary9)[key2 = proKey] = dictionary10[key2] + -1;
+                                        value2 = proKey + ":" + dictionary9[proKey];
+                                        sp_property.Name = item5.PropertyValueName;
+                                        sp_property.Value = value2;
+                                    }
+                                    sellNewProInfo2.Value = value2;
+                                    sellNewProInfo2.Name = item5.PropertyValueName;
+                                    sourceProValueAndNewProValue[item5.PropertyValue] = sellNewProInfo2;
+                                    list.Add(sp_property);
+                                    dictionary8[sp_property.Propertyid + sp_property.Value] = sp_property.Value;
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    if (dataRow3 == null)
+                    {
+                        Sys_sysProperty val3 = (propertyBySortId as List<Sys_sysProperty>).Find((Sys_sysProperty x) => x.Keys == proKey);
+                        if ((array3 == null || array3.Length <= 0) && val3 != null)
+                        {
+                            SellNewProInfo sellNewProInfo3 = sellNewProInfo3 = new SellNewProInfo();
+                            sp_property.Propertyid = val3.Id;
+                            sp_property.Issellpro = (list2.Contains(DataConvert.ToString((object)val3.Id)) ? 1 : 0);
+                            string value3 = string.Empty;
+                            if (dictionary9 == null || dictionary9.Count == 0)
+                            {
+                                value3 = proKey + ":-1001";
+                                dictionary9.Add(proKey, -1001);
+                                sp_property.Name = item5.PropertyValueName;
+                                sp_property.Value = value3;
+                            }
+                            else if (dictionary9.ContainsKey(proKey))
+                            {
+                                Dictionary<string, int> dictionary10;
+                                string key2;
+                                (dictionary10 = dictionary9)[key2 = proKey] = dictionary10[key2] + -1;
+                                value3 = proKey + ":" + dictionary9[proKey];
+                                sp_property.Name = item5.PropertyValueName;
+                                sp_property.Value = value3;
+                            }
+                            sellNewProInfo3.Value = value3;
+                            sellNewProInfo3.Name = item5.PropertyValueName;
+                            sourceProValueAndNewProValue[item5.PropertyValue] = sellNewProInfo3;
+                            list.Add(sp_property);
+                            dictionary8[sp_property.Propertyid + sp_property.Value] = sp_property.Value;
+                        }
+                    }
+                    else
+                    {
+                        empty3 = DataConvert.ToString(dataRow3["Propertyid"]);
+                        sp_property.Propertyid = DataConvert.ToInt((object)empty3);
+                        sp_property.Value = DataConvert.ToString(dataRow3["Value"]);
+                        sp_property.Name = DataConvert.ToString(dataRow3["Name"]);
+                        sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                        string propertyValueName4 = item5.PropertyValueName;
+                        list.Add(sp_property);
+                        dictionary8[sp_property.Propertyid + sp_property.Value] = sp_property.Value;
+                        if (dictionary4.ContainsKey(empty4))
+                        {
+                            propertyAliasViewEntity = dictionary4[empty4];
+                            empty5 = propertyAliasViewEntity.Alias;
+                            foreach (Sys_sysProperty item6 in propertyBySortId)
+                            {
+                                if (item6.Parentprovalueid == DataConvert.ToInt(dataRow3["Id"]))
+                                {
+                                    sp_property = new Sp_property();
+                                    int valuetype3 = item6.Valuetype;
+                                    sp_property = new Sp_property();
+                                    empty3 = DataConvert.ToString((object)item6.Id);
+                                    sp_property.Propertyid = item6.Id;
+                                    sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                                    switch (valuetype3)
+                                    {
+                                        case 2:
+                                            sp_property.Name = propertyAliasViewEntity.Alias;
+                                            sp_property.Value = propertyAliasViewEntity.Alias;
+                                            sp_property.Issellpro = 1;
+                                            list.Add(sp_property);
+                                            break;
+                                        case 3:
+                                            if (!string.IsNullOrEmpty(propertyAliasViewEntity.ImageUrl))
+                                            {
+                                                string text6 = imageOperator.DownLoadPicture(propertyAliasViewEntity.ImageUrl, null, 60000, 60000);
+                                                ImageOperator imageOperator3 = imageOperator;
+                                                string fileFullPath2 = text6;
+                                                string toolCode2 = null;// base.ToolCode;
+                                                numIid = item.NumIid;
+                                                text6 = imageOperator3.TransPicture(fileFullPath2, toolCode2, numIid.ToString(), TransPictureType.MovePicture);
+                                                if (flag2 && !string.IsNullOrEmpty(text6))
+                                                {
+                                                    text6 = string.Empty;
+                                                }
+                                                if (!string.IsNullOrEmpty(text6))
+                                                {
+                                                    sp_property.Name = text6;
+                                                    sp_property.Value = text6;
+                                                    sp_property.Issellpro = 1;
+                                                    if (toolCode2 == "UPLOADTOYF")
+                                                    {
+                                                        sp_property.PicUrl = propertyAliasViewEntity.ImageUrl;
+                                                    }
+                                                    if (flag)
+                                                    {
+                                                        sp_property.Url = propertyAliasViewEntity.ImageUrl;
+                                                    }
+                                                    list.Add(sp_property);
+                                                }
+                                            }
+                                            break;
                                     }
                                 }
                             }
                         }
-                        skuBarcode = skuBarcode + item.Barcode + ";";
+                        else if (sp_property.Issellpro == 1 && !propertyValueName4.Trim().Equals(sp_property.Name.Trim()))
+                        {
+                            empty5 = propertyValueName4;
+                            foreach (Sys_sysProperty item7 in propertyBySortId)
+                            {
+                                if (item7.Parentprovalueid == DataConvert.ToInt(dataRow3["Id"]))
+                                {
+                                    sp_property = new Sp_property();
+                                    int valuetype4 = item7.Valuetype;
+                                    sp_property = new Sp_property();
+                                    empty3 = DataConvert.ToString((object)item7.Id);
+                                    sp_property.Propertyid = item7.Id;
+                                    sp_property.Issellpro = (list2.Contains(empty3) ? 1 : 0);
+                                    if (valuetype4 == 2)
+                                    {
+                                        sp_property.Name = propertyValueName4;
+                                        sp_property.Value = propertyValueName4;
+                                        sp_property.Issellpro = 1;
+                                        list.Add(sp_property);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            empty5 = DataConvert.ToString(dataRow3["Name"]).Trim();
+                        }
+                        sellProInfo = new SellProInfo();
+                        sellProInfo.Value = DataConvert.ToString(dataRow3["Propertyid"]) + ":" + DataConvert.ToString(dataRow3["Id"]);
+                        sellProInfo.Name = empty5;
+                        dicProValueAndSellProInfos[empty4] = sellProInfo;
+                        Haschildproperty(DataConvert.ToBoolean(dataRow3["Haschildproperty"]), sysSysPropertyList, empty4, dictionary6, list2, ref list);
                     }
-                    return text;
                 }
             }
-            return string.Empty;
+            return list;
         }
+
+        public string SubStringToMaxByteLength(string str, int maxByteLength)
+        {
+            if (str.Equals(string.Empty))
+            {
+                return string.Empty;
+            }
+            if (str.Length * 2 <= maxByteLength)
+            {
+                return str;
+            }
+            string text = string.Empty;
+            string empty = string.Empty;
+            int num = 0;
+            for (int i = 0; i < str.Length; i++)
+            {
+                empty = text + str[i];
+                num = GetStringByteLength(empty);
+                if (num > maxByteLength)
+                {
+                    return text;
+                }
+                text = empty;
+            }
+            return text;
+        }
+        private Dictionary<string, string> GetInputPidAndStr(Item item)
+        {
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            if (item != null && item.InputPids != null && item.InputStr != null)
+            {
+                string[] array = item.InputPids.Split(new string[1]
+                {
+                    ","
+                }, StringSplitOptions.RemoveEmptyEntries);
+                string[] array2 = item.InputStr.Split(new string[1]
+                {
+                    ","
+                }, StringSplitOptions.RemoveEmptyEntries);
+                if (array.Length > 0 && array.Length == array2.Length)
+                {
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        dictionary[array[i]] = array2[i];
+                    }
+                }
+            }
+            return dictionary;
+        }
+        private int GetStringByteLength(string str)
+        {
+            if (str.Equals(string.Empty))
+            {
+                return 0;
+            }
+            int num = 0;
+            ASCIIEncoding aSCIIEncoding = new ASCIIEncoding();
+            byte[] bytes = aSCIIEncoding.GetBytes(str);
+            for (int i = 0; i <= bytes.Length - 1; i++)
+            {
+                if (bytes[i] == 63)
+                {
+                    num++;
+                }
+                num++;
+            }
+            return num;
+        }
+        private List<PropsViewEntity> GetLstPropsDTO(string propsName)
+        {
+            List<PropsViewEntity> list = new List<PropsViewEntity>();
+            if (string.IsNullOrEmpty(propsName))
+            {
+                return list;
+            }
+            PropsViewEntity propsViewEntity = null;
+            string pattern = "(?<PropertyValueAndName>(?<PropertyValue>(?<ProKey>\\d*):-?\\d*):(?<PropertyName>.*?):(?<PropertyValueName>.*?));";
+            MatchCollection matchCollection = Regex.Matches(propsName + ";", pattern, RegexOptions.IgnoreCase);
+            foreach (Match item in matchCollection)
+            {
+                propsViewEntity = new PropsViewEntity();
+                propsViewEntity.PropertyValueAndName = item.Groups["PropertyValueAndName"].Value;
+                propsViewEntity.PropertyValue = item.Groups["PropertyValue"].Value;
+                propsViewEntity.ProKey = item.Groups["ProKey"].Value;
+                propsViewEntity.PropertyName = item.Groups["PropertyName"].Value;
+                propsViewEntity.PropertyValueName = item.Groups["PropertyValueName"].Value.Replace("#scln#", ";");
+                list.Add(propsViewEntity);
+            }
+            return list;
+        }
+        private void Haschildproperty(bool haschildproperty, IList<Sys_sysProperty> sysSysPropertyList, string newProValue, Dictionary<string, string> dicProNameAndValue, List<string> lstSellProId, ref IList<Sp_property> lstEntSpProperty)
+        {
+            if (haschildproperty)
+            {
+                foreach (Sys_sysProperty sysSysProperty in sysSysPropertyList)
+                {
+                    if (sysSysProperty.Parentpropertyvalue.Equals(newProValue) && sysSysProperty.Valuetype == 2 && dicProNameAndValue.ContainsKey(sysSysProperty.Name   ))
+                    {
+                        Sp_property sp_property = new Sp_property();
+                        string item = DataConvert.ToString((object)sysSysProperty.Id);
+                        sp_property.Propertyid = sysSysProperty.Id;
+                        sp_property.Value = dicProNameAndValue[sysSysProperty.Name];
+                        sp_property.Issellpro = (lstSellProId.Contains(item) ? 1 : 0);
+                        sp_property.Name = sysSysProperty.Name;
+                        lstEntSpProperty.Add(sp_property);
+                    }
+                }
+            }
+        }
+        public void HandleProperty( ProductItem productItem, IList<Sp_property> propertyList)
+        {
+
+            string text = "";
+            string text2 = string.Empty;
+            string text3 = "";
+            string features = "";
+            IList<Sp_property> propertyListByItemId = propertyList;
+            Dictionary<string, Sp_property> dictionary = new Dictionary<string, Sp_property>();
+            IList<Sp_property> list = new List<Sp_property>();
+            if (propertyListByItemId != null && propertyListByItemId.Count > 0)
+            {
+                int num = 0;
+                while (num < propertyListByItemId.Count)
+                {
+                    if ((object)propertyListByItemId[num].SysProperty == null || num >= propertyListByItemId.Count - 1 || !(propertyListByItemId[num].SysProperty.Parentname == propertyListByItemId[num + 1].Name) || !(propertyListByItemId[num + 1].Name == "品牌"))
+                    {
+                        num++;
+                        continue;
+                    }
+                    Sp_property value = propertyListByItemId[num];
+                    propertyListByItemId[num] = propertyListByItemId[num + 1];
+                    propertyListByItemId[num + 1] = value;
+                    break;
+                }
+            }
+            Dictionary<string, string> dicCustomProperty = GetDicCustomProperty();
+            Sys_sysSort val = DataHelper.GetSysSort(productItem.ProductSortKeys);// ToolServer.get_ProductData().GetSortBySysIdAndKeys(1, productItem.SortKey);
+            string sortAllName = string.Empty;
+            if (val != null && !string.IsNullOrEmpty(val.Name))
+            {
+                sortAllName = val.Path + ">>" + val.Name;
+            }
+            foreach (Sp_property item in propertyListByItemId)
+            {
+                string text4;
+                if ((object)item.SysProperty != null && item.SysProperty.Keys != null)
+                {
+                    text4 = DataConvert.ToString((object)item.SysProperty.Id);
+                    string a = DataConvert.ToString((object)item.SysProperty.Valuetype);
+                    string text5 = item.SysProperty.Keys;
+                    string a2 = DataConvert.ToString((object)item.SysProperty.Parentid);
+                    string text6 = DataConvert.ToString((object)item.SysProperty.Levels);
+                    string text7 = (item.SysProperty.Parentpropertyvalue == null) ? "" : item.SysProperty.Parentpropertyvalue;
+                    if (a != "2" && a != "3")
+                    {
+                        goto IL_025c;
+                    }
+                    if (a == "2" && item.Issellpro == 1 && IsOldSizeAndNewTaobao(dicCustomProperty, sortAllName, item.SysProperty.Name))
+                    {
+                        goto IL_025c;
+                    }
+                    if (item.Issellpro != 1)
+                    {
+                        string text8 = item.Value;
+                        if (DataConvert.ToInt((object)text6) >= 2)
+                        {
+                            string text9 = "";
+                            if (a2 != "0" && text5.IndexOf(":") == -1 && !string.IsNullOrEmpty(text7))
+                            {
+                                text5 = text7;
+                            }
+                            IList<Sys_sysProperty> propertyAllTopLevelProperty = DataHelper.GetPropertyAllTopLevelProperty(text4);
+                            Sys_sysProperty val2 = null;
+                            for (int num2 = propertyAllTopLevelProperty.Count - 1; num2 >= 0; num2--)
+                            {
+                                val2 = propertyAllTopLevelProperty[num2];
+                                string key = DataConvert.ToString((object)val2.Id);
+                                if (dictionary.ContainsKey(key))
+                                {
+                                    Sys_sysProperty sysProperty = dictionary[key].SysProperty;
+                                    Sp_property sp_property = dictionary[key];
+                                    if (sysProperty.Valuetype == 0)
+                                    {
+                                        if (sysProperty.Parentid == 0)
+                                        {
+                                            text5 = sysProperty.Keys;
+                                            if (DataConvert.ToInt((object)text6) > 2 || (!(sp_property.Name != "其他") && !(sp_property.Name != "其它")))
+                                            {
+                                                text9 = text9 + sp_property.Name + ";";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            string name = sp_property.Name;
+                                            if (name == "其他" || name == "其它")
+                                            {
+                                                text9 = text9 + sysProperty.Name + ";";
+                                            }
+                                            else
+                                            {
+                                                string text10 = text9;
+                                                text9 = text10 + sysProperty.Name + ";" + name + ";";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (item.SysProperty.Parentpropertyvalue == "20000:-1" && item.SysProperty.Keys != "20000")
+                            {
+                                text8 = item.SysProperty.Name + ";" + text8;
+                            }
+                            text8 = text9 + text8;
+                            list.Add(item);
+                            if (list.Count >= 2 && list[list.Count - 1].SysProperty.Parentid == list[list.Count - 2].SysProperty.Parentid)
+                            {
+                                text3 = text3.TrimEnd(',');
+                                text3 = text3 + ";" + text8 + ",";
+                            }
+                            else
+                            {
+                                string[] array = text5.Split(new char[1]
+                                {
+                                    ':'
+                                }, StringSplitOptions.RemoveEmptyEntries);
+                                if (array.Length > 1)
+                                {
+                                    text5 = array[0];
+                                }
+                                if (!string.IsNullOrEmpty(text5) && !text2.Contains(text5 + ","))
+                                {
+                                    text2 = text2 + text5 + ",";
+                                    text3 = text3 + text8 + ",";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string[] array2 = text5.Split(new char[1]
+                            {
+                                ':'
+                            }, StringSplitOptions.RemoveEmptyEntries);
+                            if (array2.Length > 1)
+                            {
+                                text5 = array2[0];
+                            }
+                            if (!string.IsNullOrEmpty(text5))
+                            {
+                                text2 = text2 + text5 + ",";
+                            }
+                            text3 = text3 + text8 + ",";
+                        }
+                        goto IL_059f;
+                    }
+                }
+                continue;
+                IL_059f:
+                if (!dictionary.ContainsKey(text4))
+                {
+                    dictionary.Add(text4, item);
+                }
+                continue;
+                IL_025c:
+                text = text + item.Value + ";";
+                goto IL_059f;
+            }
+            text = text.Trim(',');
+            text2 = text2.TrimEnd(',');
+            text3 = text3.TrimEnd(',');
+            Sys_sysSort val3 = DataHelper.GetSysSort(productItem.SortKey);// ToolServer.get_ProductData().GetSortBySysIdAndKeys(1, productItem.SortKey);
+            if (val3 == null && !string.IsNullOrEmpty(productItem.SortKey))
+            {
+                val3 = DataHelper.GetSysSort(val3.Id.ToString());//  ToolServer.get_ProductData().GetSortById(val3.Id);
+            }
+            if (val3 != null && val3.IsNewSellPro)
+            {
+                Sys_sizeDetail val4 = new Sys_sizeDetail();
+                foreach (Sp_property item2 in propertyListByItemId)
+                {
+                    val4 = DataHelper.GetSizeDetailBySizeValue(item2.Value, val3.SizeGroupType, 1);
+                    if (val4 != null && val4.SizeName != "均码")
+                    {
+                        break;
+                    }
+                }
+                if (val4 != null)
+                {
+                    Sys_sizeGroup val5 = DataHelper.GetSizeGroupByGroupOnlineID(val3.SizeGroupType, val4.GroupOnlineID, 1);
+                    if (val5 != null)
+                    {
+                        features = ((!(val5.GroupName == "其它")) ? ("mysize_tp:-1;sizeGroupId:" + val4.GroupOnlineID + ";sizeGroupName:" + val5.GroupName + ";sizeGroupType:" + val3.SizeGroupType) : ("mysize_tp:-1;sizeGroupId:" + val4.GroupOnlineID + ";sizeGroupName:" + val5.GroupName + ";sizeGroupType:no_group1"));
+                    }
+                }
+                productItem.Features = features;
+            }
+            productItem.PropertyValue = text;
+            productItem.UserInputPropIDs = text2;
+            productItem.UserInputPropValues = text3;
+        }
+        private bool IsOldSizeAndNewTaobao(Dictionary<string, string> dicCustomProperty, string sortAllName, string propertyName)
+        {
+            bool result = false;
+            if (dicCustomProperty != null && dicCustomProperty.Count > 0 && !string.IsNullOrEmpty(sortAllName) && !string.IsNullOrEmpty(propertyName) && dicCustomProperty.ContainsKey(sortAllName) && dicCustomProperty[sortAllName].Contains(propertyName))
+            {
+                result = true;
+            }
+            return result;
+        }
+        private Dictionary<string, string> GetDicCustomProperty()
+        {
+            //IL_0006: Unknown result type (might be due to invalid IL or missing references)
+            //IL_0025: Unknown result type (might be due to invalid IL or missing references)
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            string sysConfig = ConfigHelper.TaoBaoCustomSellProperty;// ToolServer.get_ConfigData().GetSysConfig("AppConfig", "Taobao", "CustomSellProperty", "");
+            string sysConfig2 = ConfigHelper.TaoBaoCustomSellProperty2;// ToolServer.get_ConfigData().GetSysConfig("AppConfig", "Taobao", "CustomSellProperty2", "");
+            string text = sysConfig + sysConfig2;
+            if (!string.IsNullOrEmpty(text))
+            {
+                text = text.TrimEnd('|');
+                string[] array = text.Split('|');
+                if (array != null && array.Length > 0)
+                {
+                    string[] array2 = array;
+                    foreach (string text2 in array2)
+                    {
+                        if (!string.IsNullOrEmpty(text2))
+                        {
+                            string[] array3 = text2.Split(',');
+                            if (array3 != null && array3.Length == 2)
+                            {
+                                dictionary[array3[0]] = array3[1];
+                            }
+                        }
+                    }
+                }
+            }
+            return dictionary;
+        }
+        //private string HandleSellProperty(int id, out string skuBarcode, ProductItem productItem, Item item)
+        //{
+
+        //    skuBarcode = string.Empty;
+        //    int sysId = 1;
+        //    Sys_sysSort val = DataHelper.GetSysSort(DataConvert.ToString(item.Cid));
+
+        //    if (val == null)
+        //    {
+        //        // Log.WriteLog("导出商品时，获取类目信息失败，" + Environment.StackTrace);
+        //        return string.Empty;
+        //    }
+        //    IList<Sp_sellProperty> sellProperty = _exportPackageDao.GetSellProperty(id, sysId);
+        //    if (sellProperty != null && sellProperty.Count != 0)
+        //    {
+        //        List<string> list = new List<string>();
+        //        for (int num = sellProperty.Count - 1; num >= 0; num--)
+        //        {
+        //            if (list.Contains(sellProperty[num].Sellproinfos))
+        //            {
+        //                sellProperty.Remove(sellProperty[num]);
+        //            }
+        //            else
+        //            {
+        //                list.Add(sellProperty[num].Sellproinfos);
+        //            }
+        //        }
+        //        string text = "";
+        //        skuBarcode = string.Empty;
+        //        sellProperty = OrderProperty(sellProperty, id);
+        //        Dictionary<string, string> dictionary = new Dictionary<string, string>();
+        //        {
+        //            foreach (Sp_sellProperty item in sellProperty)
+        //            {
+        //                string text2 = (item.Sellproinfos == null) ? "" : item.Sellproinfos;
+        //                string text3 = (item.Price == 0m) ? "" : DataConvert.ToString((object)item.Price);
+        //                string text4 = (item.Nums == 0) ? "" : DataConvert.ToString((object)item.Nums);
+        //                string text5 = (item.Code == null) ? "" : DataConvert.ToString((object)item.Code).Replace(" ", "").Replace("\u3000", "")
+        //                    .Replace("/", "")
+        //                    .Replace("\\", "")
+        //                    .Replace("&", "");
+        //                string text6 = text;
+        //                text = text6 + text3 + ":" + text4 + ":" + text5 + ":";
+        //                if (!string.IsNullOrEmpty(text2))
+        //                {
+        //                    string[] array = text2.Split('|');
+        //                    for (int i = 0; i < array.Length; i++)
+        //                    {
+        //                        string[] array2 = array[i].Split(':');
+        //                        if (array2 != null && array2.Length > 1)
+        //                        {
+        //                            if (val != null && val.get_IsNewSellPro())
+        //                            {
+        //                                Sys_sysPropertyValue val2 = ToolServer.get_ProductData().GetPropertyValueById(Convert.ToInt32(array2[1]));
+        //                                if (val2 != null)
+        //                                {
+        //                                    text = text + val2.get_Value() + ";";
+        //                                }
+        //                                else
+        //                                {
+        //                                    IList<Sys_sysPropertyValue> propertyValuesByPropertyId = ToolServer.get_ProductData().GetPropertyValuesByPropertyId(Convert.ToInt32(array2[0]));
+        //                                    if (propertyValuesByPropertyId != null && propertyValuesByPropertyId.Count > 0)
+        //                                    {
+        //                                        string[] array3 = propertyValuesByPropertyId[0].get_Value().Split(':');
+        //                                        string text7 = text;
+        //                                        text = text7 + array3[0] + ":" + array2[1] + ";";
+        //                                    }
+        //                                    else if (array2.Length >= 2)
+        //                                    {
+        //                                        if (dictionary != null && !dictionary.ContainsKey(array2[0]))
+        //                                        {
+        //                                            IList<Sys_sysProperty> propertyAllTopLevelProperty = _exportPackageDao.GetPropertyAllTopLevelProperty(array2[0]);
+        //                                            if (propertyAllTopLevelProperty != null && propertyAllTopLevelProperty.Count == 1)
+        //                                            {
+        //                                                dictionary[array2[0]] = propertyAllTopLevelProperty[0].get_Keys();
+        //                                            }
+        //                                        }
+        //                                        string empty = string.Empty;
+        //                                        empty = ((dictionary == null || dictionary.Count <= 0 || !dictionary.ContainsKey(array2[0]) || string.IsNullOrEmpty(dictionary[array2[0]])) ? (array2[0] + ":" + array2[1] + ";") : (dictionary[array2[0]] + ":" + array2[1] + ";"));
+        //                                        text += empty;
+        //                                    }
+        //                                }
+        //                            }
+        //                            else
+        //                            {
+        //                                Sys_sysPropertyValue val3 = ToolServer.get_ProductData().GetPropertyValueById(DataConvert.ToInt((object)array2[1]));
+        //                                string text8 = (val3 != null) ? val3.get_Value() : string.Empty;
+        //                                if (string.IsNullOrEmpty(text8) && array2.Length >= 2)
+        //                                {
+        //                                    text8 = array2[0] + ":" + array2[1];
+        //                                }
+        //                                text = text + text8 + ";";
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                skuBarcode = skuBarcode + item.Barcode + ";";
+        //            }
+        //            return text;
+        //        }
+        //    }
+        //    return string.Empty;
+        //}
 
     }
 }

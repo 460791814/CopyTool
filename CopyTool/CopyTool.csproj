@@ -77,6 +77,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\PropertyAliasViewEntity.cs" />
+    <Compile Include="Model\PropsViewEntity.cs" />
+    <Compile Include="Model\SellNewProInfo.cs" />
     <Compile Include="Util\CSVUtils.cs" />
     <Compile Include="Helper\ConfigHelper.cs" />
     <Compile Include="Helper\DataHelper.cs" />
@@ -90,6 +93,8 @@
     <Compile Include="Model\ProductItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\DataTableToEntity.cs" />
+    <Compile Include="Util\ModelHandler.cs" />
     <Compile Include="Util\TaoBaoUtils.cs" />
     <Compile Include="Util\Utils.cs" />
     <EmbeddedResource Include="Form1.resx">
