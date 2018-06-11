@@ -305,11 +305,16 @@ namespace CopyTool
             productItem.PriceRise = DataConvert.ToDecimal(item.Increment);
             productItem.Nums = DataConvert.ToInt(item.Num);
             productItem.validDate = DataConvert.ToString(item.ValidThru);
-            productItem.ShipWay = (item.FreightPayer == "seller" ? "1" : "2");
+           // productItem.ShipWay = (item.FreightPayer == "seller" ? "1" : "2");
 
-            productItem.ActualShipSlow = item.PostFee;
-            productItem.ActualShipEMS = item.EmsFee;
-            productItem.ActualShipFast = item.ExpressFee;
+            /**
+             * productItem.ActualShipSlow = actualShipSlow;
+                productItem.ActualShipFast = actualShipFast;
+                productItem.ActualShipEMS = actualShipEMS;
+                productItem.ActualShipTpl = actualShipTpl;
+                productItem.ShipWay = text4;
+             * */
+            taoBaoUtils.HandleShipWay(productItem);
             productItem.IsTicket = (item.HasInvoice ? "1" : "0");
             productItem.IsRepair = (item.HasWarranty ? "1" : "0");
             productItem.OnSell = item.ApproveStatus == "onsale" ? "1" : "2";
@@ -327,10 +332,13 @@ namespace CopyTool
             //里面给productItem.PropertyValue，productItem.UserInputPropIDs,productItem.UserInputPropValues，productItem.Features赋值了
             taoBaoUtils.HandleProperty( productItem, propertyList);
 
-            //productItem.ActualShipTpl
+          
             productItem.Discount = DataConvert.ToString(item.HasDiscount);
             //productItem.Photo
-            //productItem.SellProperty
+            string skuBarcode = string.Empty;
+            IList<Sp_sellProperty> SpSellPropertyList;
+            productItem.SellProperty = taoBaoUtils.HandleSellProperty(productItem.Id, out skuBarcode, productItem, propertyList, SpSellPropertyList);
+            productItem.SkuBarcode = skuBarcode;
 
             productItem.Code = taoBaoUtils.GetCode(item.PropsName, item.OuterId);
             //productItem.CustomProperty
@@ -364,11 +372,11 @@ namespace CopyTool
                     productItem.SellPoint = ((sellPoint.Length > 150) ? sellPoint.Substring(0, 150) : sellPoint);
                 }
             }
-               
-           
+
+
             //productItem.SkuBarcode
             //productItem.CpvMemo
-            //productItem.InputCustomCpv
+            productItem.InputCustomCpv = "";
 
 
             productItem.OperateTypes = taoBaoUtils.GetOperateTypes(item.DetailUrl);

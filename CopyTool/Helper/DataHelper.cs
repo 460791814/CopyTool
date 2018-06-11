@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Sszg.Tool.ComModule.DbEntity;
 
 namespace CopyTool.Helper
 {
@@ -106,5 +107,37 @@ namespace CopyTool.Helper
         {
             return session.GetFristEntityByWhere<Sys_sizeGroup>("sysId=" + sysId + " and GroupType='" + DbUtil.OerateSpecialChar(typeCode) + "' and GroupOnlineID='" + DbUtil.OerateSpecialChar(groupOnlineID) + "' and del=0", null, true);
         }
+
+        internal static Sys_shopShip GetShopShipById(int v)
+        {
+            return null;
+        }
+
+        internal static IList<Sp_sellProperty> GetSellProperty(int id, int sysId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static Sys_sysPropertyValue GetPropertyValueById(int v)
+        {
+            string text = "select * from sys_sysPropertyValue where id={0}";
+            DataTable dataTable = session.GetDataTable(text, new object[1]
+            {
+               v
+            });
+            return DataTableToEntity.TransDataTableToEntityList<Sys_sysPropertyValue>(dataTable)?.FirstOrDefault();
+        }
+
+        internal static IList<Sys_sysPropertyValue> GetPropertyValuesByPropertyId(int v)
+        {
+            string text = "select * from sys_sysPropertyValue where propertyId={0}";
+            DataTable dataTable = session.GetDataTable(text, new object[1]
+            {
+               v
+            });
+            return DataTableToEntity.TransDataTableToEntityList<Sys_sysPropertyValue>(dataTable);
+        }
+
+    
     }
 }
